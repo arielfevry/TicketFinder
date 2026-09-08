@@ -5,8 +5,8 @@
 ```bash
 ssh your_name@tix.arielfevry.com
 cd /var/www
-ssh-keygen -t ed25519 -C "your_email@example.com" #add this key to your github account
-git clone repo@github.com
+ssh-keygen -t ed25519 -C "your_email@example.com" # add this key to your github account
+git clone repo@github.com # only the first time
 ```
 ### Pushing and Pulling code
 
@@ -23,7 +23,7 @@ git push
 ```
 
 ###  Commit Framework
-- feat: (explanation of new feature added)
-- fix: (what the commit is fixing)
-- style: (formatting, typo changes)
-- tests: (adding tests and what they are)
+- "feat: (explanation of new feature added)"
+- "fix: (what the commit is fixing)"
+- "style: (formatting, typo changes)"
+- "tests: (adding tests and what they are)"
