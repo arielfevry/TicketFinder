@@ -1,0 +1,21 @@
+CREATE TABLE 'TicketDB'.'Ticket'
+(
+    'ID' INT NOT NULL AUTO_INCREMENT,
+    'MovieName' VARCHAR(50) NOT NULL DEFAULT '',
+    'TheaterName' VARCHAR(50) NOT NULL DEFAULT '',
+    'ShowTime' TIMESTAMP NOT NULL DEFAULT '1000-01-01 00:00:00',
+    'LocationAddress' VARCHAR(50) NOT NULL DEFAULT '',
+    PRIMARY KEY ('ID')
+)ENGINE = innoDB;
+
+CREATE TABLE 'TicketDB'.'Customer'
+(
+    'ID' INT NOT NULL AUTO_INCREMENT,
+    'FirstName' VARCHAR(50) NOT NULL DEFAULT '',
+    'LastName' VARCHAR(50) NOT NULL DEFAULT '',
+    'Username' VARCHAR(50) NOT NULL DEFAULT '',
+    'Password' VARCHAR(50) NOT NULL DEFAULT '',
+    'TixID' INT NOT NULL DEFAULT '0',
+    PRIMARY KEY ('ID'),
+    FOREIGN KEY ('TixID') REFERENCES Ticket('ID')
+)ENGINE = innoDB;
