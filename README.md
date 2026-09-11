@@ -1,4 +1,4 @@
-# Ticket Finder - LampProject Group 5 
+# Ticket Finder - LampProject Group 2
 
 ### Instructions for Accessing the Droplet
 
