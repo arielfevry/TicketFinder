@@ -5,6 +5,7 @@ CREATE TABLE `TicketDB`.`User`
     `LastName` VARCHAR(50) NOT NULL DEFAULT '',
     `Email` VARCHAR(50) NOT NULL DEFAULT '',
     `Password` VARCHAR(50) NOT NULL DEFAULT '',
+    `Active` BOOLEAN NOT NULL DEFAULT FALSE,
     `DateCreated` VARCHAR(50) NOT NULL DEFAULT '',
     `DateUpdated` VARCHAR(50) NOT NULL DEFAULT '',
     PRIMARY KEY (`ID`)
