@@ -36,7 +36,7 @@ CREATE TABLE `TicketDB`.`Ticket`
     `ShowTime` VARCHAR(50) NOT NULL DEFAULT '',
     `LocationAddress` VARCHAR(50) NOT NULL DEFAULT '',
     `CustomerID` INT NOT NULL DEFAULT '0',
-    `Age` INT NOT NULL DEFAULT '0', --0 for adult, 1 for child, 2 for senior 
+    `Age` INT NOT NULL DEFAULT '0', 
     `DateCreated` VARCHAR(50) NOT NULL DEFAULT '',
     `DateUpdated` VARCHAR(50) NOT NULL DEFAULT '',
     PRIMARY KEY (`ID`),
