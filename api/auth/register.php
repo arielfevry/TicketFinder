@@ -34,7 +34,26 @@ $stmt = $db->prepare('SELECT ID FROM `User` WHERE Email = ?');
 
 $stmt->execute([$email]);
 
-if($stmt-.fetch())
+if($stmt->fetch())
 {
 	respond(409, ['error'=> 'An account with this email already exists']);
 }
+
+
+//store password as string:
+//make sure to change this for hash:
+$stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, DateCreated, DateUpdated)
+		VALUES (?, ?, ?, ?, ?, ?, ?)');
+
+$date = date('Y-m-d H:i:s');
+
+$stmt->execute([ $firstName, $lastName, $email, $password, true, $date, $date]);
+
+respond(201, ['success' => true, 'message' => 'User registered successfully']);
+
+
+
+
+
+
+
