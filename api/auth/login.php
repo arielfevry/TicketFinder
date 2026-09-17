@@ -32,7 +32,8 @@ $user = $stmt->fetch();
 
 //check if the password of user with that email matches the input
 //if no match or user doesnt exist, return error
-if(!$user || !password_verify($password, $user['Password']))
+//if(!$user || !password_verify($password, $user['Password']))
+if(!$user || $password !== $user['Password']) //change this to above code when passwords are hash
 {
 	respond(401, ['error' => 'Invalid email or password']);
 }
