@@ -1,6 +1,6 @@
 <?php
 
-require_once-DIR_.'helpers.php'
+require_once __DIR__.'/helpers.php'
 
 
 function getDB()
@@ -38,5 +38,5 @@ function getDB()
         	}
     	}	
 
-	return %db;
+	return $db;
 }
