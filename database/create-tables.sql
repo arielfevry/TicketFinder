@@ -8,7 +8,8 @@ CREATE TABLE `TicketDB`.`User`
     `Active` BOOLEAN NOT NULL DEFAULT FALSE,
     `DateCreated` VARCHAR(50) NOT NULL DEFAULT '',
     `DateUpdated` VARCHAR(50) NOT NULL DEFAULT '',
-    PRIMARY KEY (`ID`)
+    PRIMARY KEY (`ID`),
+    UNIQUE (`Email`)
 )ENGINE = innoDB;
 
 CREATE TABLE `TicketDB`.`Admin`
