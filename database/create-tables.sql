@@ -6,19 +6,13 @@ CREATE TABLE `TicketDB`.`User`
     `Email` VARCHAR(50) NOT NULL DEFAULT '',
     `Password` VARCHAR(255) NOT NULL DEFAULT '',
     `Active` BOOLEAN NOT NULL DEFAULT FALSE,
+    `IsAdmin` BOOLEAN NOT NULL DEFAULT FALSE,
     `DateCreated` VARCHAR(50) NOT NULL DEFAULT '',
     `DateUpdated` VARCHAR(50) NOT NULL DEFAULT '',
     PRIMARY KEY (`ID`),
     UNIQUE (`Email`)
 )ENGINE = innoDB;
 
-CREATE TABLE `TicketDB`.`Admin`
-(
-    `ID` INT NOT NULL AUTO_INCREMENT,
-    `AdminID` INT NOT NULL DEFAULT '0',
-    PRIMARY KEY (`ID`),
-    Foreign Key (`AdminID`) REFERENCES User(`ID`)
-)ENGINE = innoDB;
 
 CREATE TABLE `TicketDB`.`Movie`
 (
