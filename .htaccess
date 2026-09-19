@@ -1,0 +1,7 @@
+RewriteEngine On
+# Base the rewrites relative to the TicketFinder folder
+RewriteBase /TicketFinder/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
