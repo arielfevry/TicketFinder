@@ -210,7 +210,7 @@ function requireAdmin($userId){
     $db = getDB();
 
     // query database to check if Admin boolean is true
-    $stmt = $db->prepare("SELECT IsAdmin FROM User WHERE ID = :id LIMIT 1");
+    $stmt = $db->prepare("SELECT AdminID FROM Admin WHERE ID = :id LIMIT 1");
     $stmt->execute(['id' => $userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -219,3 +219,7 @@ function requireAdmin($userId){
        respond(403, ['error' => 'Forbidden: Administrator privileges required']);
     }
 }
+
+
+
+
