@@ -9,7 +9,7 @@ if (!defined('RESOURCE_ID') && !array_key_exists('RESOURCE_ID', $GLOBALS)) {
     exit;
 }
 
-$db = getDB(); 
+//$db = getDB(); 
 
 // get http request
 $method = $_SERVER['REQUEST_METHOD'];
@@ -19,6 +19,7 @@ switch($method){
     case 'GET':
 
 	if($movieId){
+	   $db = getDB();
 	   $stmt = $db->prepare("SELECT `ID`, `Title`, `Genre`, `ReleaseDate`, `ImageUrl`
 				FROM Movie 
 				WHERE ID = :id LIMIT 1");
