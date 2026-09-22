@@ -73,7 +73,7 @@ switch($method){
 	}
 
 	$db = getDB();
-	$stmt = $db->prepare("INSERT INTO Movie (`Title`, `Genre`, `ReleaseDate`, `ImgUrl`) VALUES (:title, :genre, :releaseDate, :img)");
+	$stmt = $db->prepare("INSERT INTO Movie (`Title`, `Genre`, `ReleaseDate`, `ImageUrl`) VALUES (:title, :genre, :releaseDate, :img)");
 	
 	// execute insetion 
 	$success = $stmt->execute([
