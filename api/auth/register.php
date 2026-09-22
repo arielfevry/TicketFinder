@@ -13,7 +13,7 @@ $body = getRequestBody();
 $firstName = clean($body['firstName'] ?? '');
 $lastName = clean($body['lastName'] ?? '');
 $email = clean($body['email'] ?? '');
-$password = clean($body['password'] ?? '');
+$password = $body['password'];
 
 //check if entries are empty
 if($firstName === '' || $lastName === '' || $email === '' || $password === '')
@@ -45,9 +45,10 @@ if($stmt->fetch())
 $stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, DateCreated, DateUpdated)
 		VALUES (?, ?, ?, ?, ?, ?, ?)');
 
+$hashPassword = password_hash($password, PASSWORD_DEFAULT);
 $date = date('Y-m-d H:i:s');
 
-$stmt->execute([ $firstName, $lastName, $email, $password, true, $date, $date]);
+$stmt->execute([ $firstName, $lastName, $email, $hashPassword, true, $date, $date]);
 
 respond(201, ['success' => true, 'message' => 'User registered successfully']);
 
