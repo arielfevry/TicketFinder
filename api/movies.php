@@ -18,8 +18,9 @@ $movieId = $GLOBALS['RESOURCE_ID']; // primary key or null
 switch($method){
     case 'GET':
 
+	$db = getDB();
+
 	if($movieId){
-	   $db = getDB();
 	   $stmt = $db->prepare("SELECT `ID`, `Title`, `Genre`, `ReleaseDate`, `ImageUrl`
 				FROM Movie 
 				WHERE ID = :id LIMIT 1");
@@ -37,7 +38,6 @@ switch($method){
 
 	// search using url query parameters
 	$searchTitle = $_GET['title'] ?? null;
-
 	if($searchTitle){
 	   $stmt = $db->prepare("SELECT `ID`, `Title`, `Genre`, `ReleaseDate`, `ImageUrl`
 				FROM Movie
