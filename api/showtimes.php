@@ -100,7 +100,7 @@ switch($method){
             $showTimes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             if(!$showTimes){
-                respond(404, ["error" => "Showtime with ID $showId not found"]);
+                respond(404, ["error" => "Showtime with movie ID $searchShow not found"]);
                 break;
             }
 
