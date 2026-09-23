@@ -204,22 +204,21 @@ function requireAuth() {
 /**
  * Checks that the actice session belongs to an admin accoutn
  */
-function requireAdmin($userId){
+function requireAdmin($userId)
+{
     require_once __DIR__ . '/api/config/db.php';
 
     $db = getDB();
 
     // query database to check if Admin boolean is true
-    $stmt = $db->prepare("SELECT AdminID FROM Admin WHERE ID = :id LIMIT 1");
+    $stmt = $db->prepare("SELECT IsAdmin FROM User WHERE ID = :id LIMIT 1");
     $stmt->execute(['id' => $userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     //if !admin raise 403 flag 
     if(!$user || !(bool)$user['IsAdmin']){
        respond(403, ['error' => 'Forbidden: Administrator privileges required']);
+       exit;
     }
 }
-
-
-
 

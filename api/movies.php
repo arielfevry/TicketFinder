@@ -1,3 +1,14 @@
+/* API ROUTES
+
+GET    /movies                 : returns all movies
+GET    /movies/{id}			   : returns a movie by id
+GET    /movies?title={string}  : searches database for movie with title
+POST   /movies				   : add movie to database
+PUT    /movies/{id}			   : update movies     
+DELETE /movies/{id}            : delete a movie by id and associated showtimes/tickets
+
+*/
+
 <?php
 
 require_once __DIR__ . '/config/db.php';
@@ -18,8 +29,9 @@ $movieId = $GLOBALS['RESOURCE_ID']; // primary key or null
 switch($method){
     case 'GET':
 
+	$db = getDB();
+
 	if($movieId){
-	   $db = getDB();
 	   $stmt = $db->prepare("SELECT `ID`, `Title`, `Genre`, `ReleaseDate`, `ImageUrl`
 				FROM Movie 
 				WHERE ID = :id LIMIT 1");
@@ -37,7 +49,6 @@ switch($method){
 
 	// search using url query parameters
 	$searchTitle = $_GET['title'] ?? null;
-
 	if($searchTitle){
 	   $stmt = $db->prepare("SELECT `ID`, `Title`, `Genre`, `ReleaseDate`, `ImageUrl`
 				FROM Movie
@@ -73,7 +84,7 @@ switch($method){
 	}
 
 	$db = getDB();
-	$stmt = $db->prepare("INSERT INTO Movie (`Title`, `Genre`, `ReleaseDate`, `ImgUrl`) VALUES (:title, :genre, :releaseDate, :img)");
+	$stmt = $db->prepare("INSERT INTO Movie (`Title`, `Genre`, `ReleaseDate`, `ImageUrl`) VALUES (:title, :genre, :releaseDate, :img)");
 	
 	// execute insetion 
 	$success = $stmt->execute([
@@ -118,14 +129,14 @@ switch($method){
 	$db = getDB();
 	$stmt = $db->prepare("UPDATE Movie
 				SET `Title` = :title,
-			            `Genre` = :genre,
+			        `Genre` = :genre,
 				    `ReleaseDate` = :releaseDate,
-				    `ImgUrl` = :img
+				    `ImageUrl` = :img
 			      WHERE `id` = :id");
 
 	$success = $stmt->execute([
-		':title'    => $title,
-		':genre'    => $genre,
+		':title'       => $title,
+		':genre'       => $genre,
 		':releaseDate' => $release, 
 		':img'         => $img,
 		':id'          => $movieId]);
@@ -152,8 +163,8 @@ switch($method){
 
 	$db = getDB();
 	$stmt = $db->prepare("DELETE FROM Movie WHERE `id` = :id");
-	$success = $stmt->execute([':id' => $movieId]);
-
+	$success = $stmt->execute([':id' => $movieId]); //when deleting a movie all assoc showtimes are auto deleted
+													// DELETE on cascade
 	if($success){
 	   respond(200, ["message" => "Movie successfully deleted!"]);
 	   exit;
@@ -164,5 +175,8 @@ switch($method){
 	}
 
 	break;
+
+	default:
+		respond(404, ["error:" => "Request not found."]);
+        exit;
 }
-	

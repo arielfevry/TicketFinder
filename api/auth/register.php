@@ -15,6 +15,7 @@ $lastName = clean($body['lastName'] ?? '');
 $email = clean($body['email'] ?? '');
 $password = $body['password'];
 
+
 //check if entries are empty
 if($firstName === '' || $lastName === '' || $email === '' || $password === '')
 {
@@ -44,6 +45,7 @@ if($stmt->fetch())
 //make sure to change this for hash:
 $stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, DateCreated, DateUpdated)
 		VALUES (?, ?, ?, ?, ?, ?, ?)');
+
 
 $hashPassword = password_hash($password, PASSWORD_DEFAULT);
 $date = date('Y-m-d H:i:s');
