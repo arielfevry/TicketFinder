@@ -131,7 +131,7 @@ switch($method){
 				SET `Title` = :title,
 			        `Genre` = :genre,
 				    `ReleaseDate` = :releaseDate,
-				    `ImgUrl` = :img
+				    `ImageUrl` = :img
 			      WHERE `id` = :id");
 
 	$success = $stmt->execute([
