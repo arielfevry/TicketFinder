@@ -204,9 +204,8 @@ function requireAuth() {
 /**
  * Checks that the actice session belongs to an admin accoutn
  */
-function requireAdmin($userId)
-{
-    require_once __DIR__ . '/api/config/db.php';
+function requireAdmin($userId){
+    require_once __DIR__ . '/db.php';
 
     $db = getDB();
 
@@ -218,7 +217,9 @@ function requireAdmin($userId)
     //if !admin raise 403 flag 
     if(!$user || !(bool)$user['IsAdmin']){
        respond(403, ['error' => 'Forbidden: Administrator privileges required']);
-       exit;
     }
 }
+
+
+
 
