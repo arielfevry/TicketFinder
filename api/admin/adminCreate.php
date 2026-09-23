@@ -13,12 +13,13 @@ if($_SERVER['REQUEST_METHOD'] !== 'POST')
 
 $db = getDB();
 
-//check request user ID to make sure it is in admin list
+//check request user ID to make sure it is an admin
 $userID = requireAuth();
-$stmt = $db->prepare('SELECT AdminID FROM Admin WHERE AdminID = ?');
+$stmt = $db->prepare('SELECT IsAdmin FROM `User` WHERE ID = ? AND IsAdmin = 1');
 $stmt->execute([$userID]);
 
-if(!$stmt->fetch())
+
+if($stmt->fetch() === false)
 {
 	respond(403, ['error' => 'Admin access required']);
 }
@@ -58,15 +59,12 @@ if($stmt->fetch())
 //hash password:
 $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-$stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, DateCreated, DateUpdated)
-		VALUES (?, ?, ?, ?, ?, ?, ?)');
+$stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, IsAdmin, DateCreated, DateUpdated)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
 
 $date = date('Y-m-d H:i:s');
 
-$stmt->execute([ $firstName, $lastName, $email, $passwordHash, true, $date, $date]);
+$stmt->execute([ $firstName, $lastName, $email, $passwordHash, true, true, $date, $date]);
 
-$newUserID = $db->lastInsertId();
 
-$stmt = $db->prepare('INSERT INTO `Admin` (AdminID) VALUES (?)');
-$stmt->execute([$newUserID]);
 respond(201, ['success' => true, 'message' => 'New Admin added successfully']);

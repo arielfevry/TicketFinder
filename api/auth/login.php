@@ -41,17 +41,6 @@ if(!$user || !password_verify($password, $user['Password']))
 unset($user['Password']);
 
 
-$stmt = $db->prepare('SELECT AdminID FROM Admin WHERE AdminID = ?');
-$stmt->execute([(int)$user['ID']]);
-
-$isAdmin = false;
-
-if($stmt->fetch())
-{
-	$isAdmin = true;
-}
-
-
 
 //if there is a match, return info
 //code.js done by frontend will use this to create a cookie:
@@ -61,7 +50,7 @@ respond(200, [
 	'lastName' => $user['LastName'], 
 	'email' => $user['Email'],
 	'active' => (bool)$user['Active'], 
-	'isAdmin' => $isAdmin]);
+	'isAdmin' => (bool)$user['IsAdmin']]);
 
 
 
