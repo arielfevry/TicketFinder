@@ -3,11 +3,11 @@ TicketFinder - Shared Frontend Code
 */
 
 // API Paths
-const LOGIN_PATH = '/TicketFinder/api/auth/login.php';
-const TICKETS_PATH = '/TicketFinder/tickets.php';
-const REGISTER_PATH = '/TicketFinder/api/auth/register.php'
-const MOVIES_PATH = '/TicketFinder/movies.php';
-const SHOWTIMES_PATH = '/TicketFinder/showtimes.php';
+const LOGIN_PATH = '/TicketFinder/login';
+const TICKETS_PATH = '/TicketFinder/tickets';
+const REGISTER_PATH = '/TicketFinder/register'
+const MOVIES_PATH = '/TicketFinder/movies';
+const SHOWTIMES_PATH = '/TicketFinder/showtimes';
 
 // const USERS_PATH = '/api/users.php';
 
