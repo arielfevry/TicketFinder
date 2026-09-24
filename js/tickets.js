@@ -1,9 +1,11 @@
+// Load user tickets when searching
 document.getElementById('ticketSearch').addEventListener('input', debounce(e =>
     {
         loadTickets(e.target.value.trim());
     },
     300));
 
+// Load User Tickets
 async function loadTickets(q) {
     const list = document.getElementById('ticketList');
     list.replaceChildren(el('p', { }, 'Loading your tickets...'));
