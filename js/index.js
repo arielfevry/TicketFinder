@@ -69,7 +69,7 @@ document.getElementById('registerForm').addEventListener('submit', async e =>
         const lastName = document.getElementById('regLastName').value.trim();
         const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
-        const confirm = document.getElementById('reqPasswordConfirm').value;
+        const confirm = document.getElementById('regPasswordConfirm').value;
 
         if (!firstName || !lastName || !email || !password) {
             err.textContent = 'Fill in every field.'
