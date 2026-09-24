@@ -4,9 +4,8 @@
 
 ```bash
 ssh your_name@tix.arielfevry.com
-cd /var/www
 ssh-keygen -t ed25519 -C "your_email@example.com" # add this key to your github account
-git clone repo@github.com # only the first time
+cd /var/www/html/TicketFinder
 ```
 ### Pushing and Pulling code
 
