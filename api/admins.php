@@ -91,7 +91,7 @@ switch($sub)
 					respond(400, ['error' => 'Active must be true or false']);
 				}
 
-				$active = $body['active'];
+				$active = $body['active'] ? 1 : 0;
 
 				$stmt = $db->prepare("UPDATE User SET Active = ?, DateUpdated = ? WHERE ID = ?");
 				$stmt ->execute([$active, $date, $id]);
