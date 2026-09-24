@@ -1,14 +1,77 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
     <head>
-        <meta charset=”UTF-8” >
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Ticket Finder APP</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>TicketFinder</title>
     </head>
-
+    
     <body>
-        <h1>Ticket Finder Homepage YAY!</h1>
-        <img src="./cat_img.jpg" alt="closeup of a cat's face" width="200">
-    </body>
+        <main>
 
+        <!-- LOGIN -->
+         <section>
+                <div>
+                    <h1>Ticket<span>Finder</span></h1>
+                    <p>Grab your ticket before someone else does!</p>
+                
+
+                  <!-- Login Form -->
+                    <form id="loginForm">
+
+                        <!-- Email Input -->
+                        <label for="loginEmail">Email</label>
+                        <input name="email", id="loginEmail" type="email" autocomplete="username" required>
+                    
+                        <!-- Password Input -->
+                        <label for="loginPassword">Password</label>
+                        <input name="password", id="loginPassword", type="password" autocomplete="current-password" required>
+
+                        <button type="submit">Sign in</button>
+                        <p id="loginError" role="alert" aria-live="polite"></p>
+                  </form>
+
+                    <!-- Register Form -->
+                    <p id="showRegisterLine">
+                        <button type="button" id="showRegisterBtn">Need an account? Register</button>
+                    </p>
+
+                    <form id="registerForm" hidden novalidate>
+                        <label for="regFirstName">First Name</label>
+                        <input id="regFirstName" name="firstName" required>
+
+                        <label for="regLastName">Last Name</label>
+                        <input id="regLastName" name="lastName" required>
+
+                        <label for="reqEmail">Email</label>
+                        <input id="reqEmail" name="email" type="email" autocomplete="email" required>
+
+                        <label for="reqPassword">Password</label>
+                        <input id="reqPassword" name="password" type="password" autocomplete="new-password" required>
+
+                        <label for="regPasswordConfirm">Confirm Password</label>
+                        <input id="reqPasswordConfirm" type="password" autocomplete="new=password" required>
+
+                        <button type="submit">Create Account</button>
+                        <p id="registerError" role="alert" aria-live="polite"></p>
+                    </form>
+
+                        <p id="showSignInLine">
+                        <button type="button" id="showSignInBtn">Already have an account? Sign In</button>
+                    </p>
+
+
+
+                </div>
+            </section>
+
+        </main>
+
+        <div id="toasts" role="status" aria-live="polite"></div>
+
+        <script src="shared/shared.js"></script>
+        <script src="js/index.js"></script>
+    </body>
 </html>
