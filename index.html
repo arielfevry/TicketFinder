@@ -33,24 +33,30 @@
                         <p id="loginError" role="alert" aria-live="polite"></p>
                   </form>
 
+                  
                     <!-- Register Form -->
                     <p id="showRegisterLine">
                         <button type="button" id="showRegisterBtn">Need an account? Register</button>
                     </p>
 
                     <form id="registerForm" hidden novalidate>
+                        <!-- First Name -->
                         <label for="regFirstName">First Name</label>
                         <input id="regFirstName" name="firstName" required>
 
+                        <!-- Last Name -->
                         <label for="regLastName">Last Name</label>
                         <input id="regLastName" name="lastName" required>
 
+                        <!-- Email -->
                         <label for="regEmail">Email</label>
                         <input id="regEmail" name="email" type="email" autocomplete="email" required>
 
+                        <!-- Password -->
                         <label for="regPassword">Password</label>
                         <input id="regPassword" name="password" type="password" autocomplete="new-password" required>
 
+                        <!-- Confirm Password -->
                         <label for="regPasswordConfirm">Confirm Password</label>
                         <input id="regPasswordConfirm" type="password" autocomplete="new=password" required>
 
@@ -59,7 +65,7 @@
                     </form>
 
                         <p id="showSignInLine">
-                        <button type="button" id="showSignInBtn">Already have an account? Sign In</button>
+                        <button type="button" id="showSignInBtn" hidden>Already have an account? Sign In</button>
                     </p>
 
 
