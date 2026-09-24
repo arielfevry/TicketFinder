@@ -1,3 +1,12 @@
+// Disabled account was signed out, delete cookie and list disabled message
+if (isDisabled(state.user) || new URLSearchParams(window.location.search).has('disabled'))
+{
+    state.user = null;
+    deleteCookie(USER_COOKIE);
+    document.getElementById('loginError').textContent = DISABLED_MESSAGE;
+    history.replaceState(null, '', window.location.pathname); // Drops ?disabled=1 from the URL
+}
+
 // Skip to movies if already signed in
 if (state.user)
 {
@@ -10,24 +19,34 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     const err = document.getElementById('loginError');
     err.textContent = '';
 
+    // Get email and password from input fields
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
+    // Email or password is not filled in
     if (!email || !password)
     {
         err.textContent = 'Enter your email and password.';
         return;
     }
 
+    // User is disabled
+
+
+    // Contact backend to log user in
     try {
         const res = await api(LOGIN_PATH, {method: 'POST', body: {email, password}} );
-        state.user = {
-            id: res.id,
-            firstName: res.firstName,
-            lastName: res.lastName,
-            email: res.email,
-            isAdmin: !!(res.isAdmin ?? res.is_admin),
-        };
+        const user = userFromLogin(res);
+
+        // Account is disabled
+        if (isDisabled(user))
+        {
+            err.textContent = DISABLED_MESSAGE;
+            return;
+        }
+
+        // Make cookie
+        state.user = user;
         saveUser(state.user);
         window.location.href = 'tickets.html';
     } catch (ex) {
@@ -91,6 +110,28 @@ document.getElementById('registerForm').addEventListener('submit', async e =>
                 ? 'An account with this email already exists.'
                 : ex.message;
             return;
+        }
+
+
+        // Account Created: Sign in new user and send to home page
+        try {
+            const res = await api(LOGIN_PATH, { method: 'POST', body: { email, password } });
+            const user = userFromLogin(res);
+            if (isDisabled(user)) throw new Error(DISABLED_MESSAGE);
+
+            state.user = user;
+            saveUser(state.user);
+            window.location.href = 'tickets.html';
+        } catch (ex) {
+            // Automatic sign in failed, send back to sign in
+            btn.disabled = false;
+            document.getElementById('registerForm').reset();
+            document.getElementById('showSignInBtn').click();
+
+            // Pre-input email
+            document.getElementById('loginEmail').value = email;
+
+            document.getElementById('loginError').textContent = ex.message === DISABLED_MESSAGE ? DISABLED_MESSAGE : 'Account created! Sign in to continue.';
         }
     }
 );

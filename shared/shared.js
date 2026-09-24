@@ -54,10 +54,32 @@ function saveUser(user)
 }
 
 const state = {
-    user: loadUser(), // {id, firstName, lastName, email, isAdmin}
+    user: loadUser(), // {id, firstName, lastName, email, isAdmin, isActive}
 };
 
-// Fetchs info from the PHP pipelines
+// Message shown on index if the user account is disabled
+const DISABLED_MESSAGE = 'Your account has been disabled. Contact an administrator for help.';
+
+// Builds a state.user object from a login.php response
+function userFromLogin(res)
+{
+  return {
+    id: res.id,
+    firstName: res.firstName,
+    lastName: res.lastName,
+    email: res.email,
+    isAdmin: !!(res.isAdmin ?? res.is_admin),
+    isActive: !!(res.isActive ?? res.active ?? true),
+  };
+}
+
+// Returns true when an account is marked as inactive
+function isDisabled(user)
+{
+  return !!user && user.isActive === false;
+}
+
+// Fetchs info from PHP pipelines
 async function api(path, { method = 'GET', body } = {})
 {
     if (USE_MOCK) {return mockApi(path, method, body);} // For Testing Only
@@ -93,12 +115,18 @@ async function api(path, { method = 'GET', body } = {})
 // Checks if user is signed in
 function requireAuth()
 {
+    if (isDisabled(state.user))
+      {
+        signOut('disabled');
+        return false;
+      }  
+  
     if (!state.user)
-    {
+      {
         window.location.href = 'index.html';
         return false;
-    }
-    return true;
+      }
+      return true;
 }
 
 // Checks if user is an admin
@@ -113,11 +141,12 @@ function requireAdmin()
 }
 
 // Signs the user out
-function signOut()
+// signOut('disabled') shows the disabled message on the signin screen 
+function signOut(reason)
 {
     state.user = null;
     deleteCookie(USER_COOKIE);
-    window.location.href = 'index.html';
+    window.location.href = reason === 'disabled' ? 'index.html?disabled=1' : 'index.html';
 }
 
 // Creates the navigation bar at the top of the page.
@@ -133,6 +162,13 @@ function initTopbar()
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.addEventListener('click', signOut);
 }
+
+// Boots disabled users off every page except index
+function (isDisabled(state.user) && !document.getElementById('loginForm'))
+{
+  signOut('disabled');
+}
+
 
 initTopbar();
 
