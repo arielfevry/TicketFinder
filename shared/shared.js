@@ -60,7 +60,7 @@ const state = {
 // Fetchs info from the PHP pipelines
 async function api(path, { method = 'GET', body } = {})
 {
-    if (USE_MOCK) {return mockApi(path, method, body);}
+    if (USE_MOCK) {return mockApi(path, method, body);} // For Testing Only
 
     const res = await fetch(path, {
         method,
@@ -76,7 +76,7 @@ async function api(path, { method = 'GET', body } = {})
 
     const data = await res.json().catch(() => ({}));
 
-    if (res.status === 401)
+    if (res.status === 401 && state.user)
     {
         signOut();
         throw Object.assign(new Error('Your session expired. Sign in again.'), {status: 401});
@@ -121,7 +121,7 @@ function signOut()
 }
 
 // Creates the navigation bar at the top of the page.
-// MUST BE RUN ON EVERY PAGE EXCEPT LOGIN AND REGISTRATION!
+// MUST BE RUN ON EVERY PAGE EXCEPT INDEX!
 function initTopbar()
 {
     const nameEl = document.getElementById('userName');
@@ -187,7 +187,6 @@ function formatDateTime(value)
 // MOCK BACKEND - FOR TESTING PURPOSES ONLY
 // Imitates the backend (when it works)
 
-// Seed data the mock endpoints below read from and mutate.
 const mock = {
   users: [
     { id: 1, firstName: 'Ada', lastName: 'Lovelace', email: 'ada@example.com',   password: 'password', active: true, isAdmin: false },

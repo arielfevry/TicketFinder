@@ -5,8 +5,6 @@ if (state.user)
 }
 
 // Confirm login credentials
-
-
 document.getElementById('loginForm').addEventListener('submit', async e => {
     e.preventDefault();
     const err = document.getElementById('loginError');
