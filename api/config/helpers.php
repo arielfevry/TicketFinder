@@ -217,6 +217,9 @@ function requireAdmin($userId){
     //if !admin raise 403 flag 
     if(!$user || !(bool)$user['IsAdmin']){
        respond(403, ['error' => 'Forbidden: Administrator privileges required']);
-       exit;
     }
 }
+
+
+
+
