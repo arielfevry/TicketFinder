@@ -13,7 +13,7 @@ $body = getRequestBody();
 $firstName = clean($body['firstName'] ?? '');
 $lastName = clean($body['lastName'] ?? '');
 $email = clean($body['email'] ?? '');
-$password = $body['password'];
+$password = $body['password'] ?? '';
 
 
 //check if entries are empty
@@ -41,8 +41,7 @@ if($stmt->fetch())
 }
 
 
-//store password as string:
-//make sure to change this for hash:
+
 $stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, DateCreated, DateUpdated)
 		VALUES (?, ?, ?, ?, ?, ?, ?)');
 
