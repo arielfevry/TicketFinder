@@ -10,7 +10,7 @@ async function loadTickets(q) {
 
     let tickets;
     try {
-        ( tickets  = await api(TICKETS_PATH + '?q=' + encodeURIComponent(q)));
+        ( tickets  = await api(TICKETS_PATH + '?showing=' + encodeURIComponent(q)));
     } catch (ex) {
         list.replaceChildren(el('p', { }, ex.message));
         return;
@@ -27,9 +27,9 @@ async function loadTickets(q) {
 
     list.replaceChildren(...tickets.map(t => el('article', { },
         el('div', { },
-            el('h3', { }, t.movieName),
-            el('p', { }, `${t.showTime} at ${t.locationAddress}`),
-            el('p', { }, `Seat ${t.seatNumber}` + (t.age ? `, age ${t.age}` : ''))
+            el('h3', { }, t.MovieName),
+            el('p', { }, `${t.ShowTime} at ${t.LocationAddress}`),
+            el('p', { }, `Seat ${t.SeatNumber}` + (t.Age ? `, age ${t.Age}` : ''))
         ),
         el('div', { },
             el('p', { }, 'Admit'),
