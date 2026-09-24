@@ -10,7 +10,7 @@ async function loadTickets(q) {
 
     let tickets;
     try {
-        ({ tickets } = await api(TICKETS_PATH + '?q=' + encodeURIComponent(q)));
+        ( tickets  = await api(TICKETS_PATH + '?q=' + encodeURIComponent(q)));
     } catch (ex) {
         list.replaceChildren(el('p', { }, ex.message));
         return;

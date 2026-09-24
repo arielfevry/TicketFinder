@@ -13,7 +13,7 @@ const USERS_PATH = '/api/users.php';
 
 // FOR TESTING PURPOSES ONLY
 // Enables use of fake backend
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 const USER_COOKIE = 'tf_user';
 const SESSION_MINUTES = 20; // Cookie expiration time in minutes
