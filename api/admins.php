@@ -1,3 +1,4 @@
+
 /* API ROUTES
 
 Admin User Management:
@@ -22,6 +23,7 @@ PUT		/admins/showtimes/{id}      : edit existing showtime
 DELETE          /admins/showtimes/{id} 	   : delete showtime
 
 */
+
 
 <?php
 
@@ -438,5 +440,3 @@ switch($sub)
 
 	break;
 }
-
-

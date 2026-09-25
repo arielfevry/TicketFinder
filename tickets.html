@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>TicketFinder - My Tickets</title>
+    </head>
+    
+    <body>
+
+        <!-- Shared Navigation Bar (with current page highlighted) -->
+        <header>
+            <a href="movies.html">TicketFinder</a>
+            <nav>
+                <a href="movies.html">Now Showing</a>
+                <a href="tickets.html" aria-current="page">My Tickets</a>
+                <a href="admin.html" id="adminLink" hidden></a>
+            </nav>
+            <div>
+                <span id="userName"></span>
+                <button type="button" id="logoutBtn">Sign Out</button>
+            </div>
+        </header>
+
+        <main>
+            <h2>My Tickets</h2>
+
+            <label for="ticketSearch">Search your tickets</label>
+            <input id="ticketSearch" type="search" placeholder="Search by movie or location">
+
+            <div id="ticketList"></div>
+
+        </main>
+
+        <div id="toasts" role="status" aria-live="polite"></div>
+
+        <script src="shared/shared.js"></script>
+        <script src="js/tickets.js"></script>
+    </body>
+</html>
