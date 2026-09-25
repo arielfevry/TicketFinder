@@ -68,7 +68,7 @@ function userFromLogin(res)
     firstName: res.firstName,
     lastName: res.lastName,
     email: res.email,
-    isAdmin: !!(res.isAdmin ?? res.is_admin),
+    isAdmin: !!(res.isAdmin ?? res.is_admin ?? true),
     isActive: !!(res.isActive ?? res.active ?? true),
   };
 }
