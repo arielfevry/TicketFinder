@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <?php
 
 require_once __DIR__ . '/config/helpers.php';
@@ -177,6 +176,3 @@ switch($sub)
 
 	break;
 }
-
-=======
->>>>>>> parent of c9b0428 (Admin user management endpoints)
