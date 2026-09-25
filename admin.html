@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | TicketFinder</title>
+    <link rel="stylesheet" href="css/movies.css?v=20260925-3">
+    <link rel="stylesheet" href="css/admin.css?v=1">
+</head>
+<body>
+    <header>
+        <a href="movies.html">TicketFinder</a>
+        <nav aria-label="Main navigation">
+            <a href="movies.html">Now Showing</a>
+            <a href="tickets.html?v=20260925-4">My Tickets</a>
+            <a href="admin.html" id="adminLink" aria-current="page" hidden>Admin</a>
+        </nav>
+        <span id="userName"></span>
+        <button type="button" id="logoutBtn">Sign Out</button>
+    </header>
+    <main>
+        <h1>Administration</h1>
+        <p id="admin-status" role="status" aria-live="polite">Checking administrator access...</p>
+        <div id="admin-content" hidden>
+            <div class="admin-grid">
+                <section class="admin-panel" aria-labelledby="movie-heading">
+                    <h2 id="movie-heading">Add a movie</h2>
+                    <form id="movie-form">
+                        <label for="movie-title">Title</label>
+                        <input id="movie-title" name="title" required>
+                        <label for="movie-genre">Genre</label>
+                        <input id="movie-genre" name="genre" required>
+                        <label for="movie-release">Release date</label>
+                        <input id="movie-release" name="release-date" type="date" required>
+                        <label for="movie-image">Image URL or local image path</label>
+                        <input id="movie-image" name="img-url" placeholder="cat_img.jpg" required>
+                        <button type="submit">Add Movie</button>
+                        <p class="form-status" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+                <section class="admin-panel" aria-labelledby="showtime-heading">
+                    <h2 id="showtime-heading">Add a showtime</h2>
+                    <form id="showtime-form">
+                        <label for="showtime-movie">Movie</label>
+                        <select id="showtime-movie" name="movieId" required></select>
+                        <label for="showtime-date">Date and time (theater local time)</label>
+                        <input id="showtime-date" name="datetime" type="datetime-local" required>
+                        <label for="showtime-location">Theater / location</label>
+                        <input id="showtime-location" name="location" required>
+                        <label for="showtime-seats">Number of seats</label>
+                        <input id="showtime-seats" name="seats" type="number" min="1" step="1" value="24" required>
+                        <button type="submit">Add Showtime</button>
+                        <p class="form-status" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+            </div>
+            <section class="admin-panel" aria-labelledby="users-heading">
+                <h2 id="users-heading">Users</h2>
+                <label for="user-search">Search by name or email</label>
+                <input id="user-search" type="search" placeholder="Search users">
+                <div class="table-scroll"><table>
+                    <thead><tr><th scope="col">ID</th><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Role</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead>
+                    <tbody id="user-list"></tbody>
+                </table></div>
+                <p id="user-status" role="status" aria-live="polite"></p>
+            </section>
+            <section class="admin-panel" aria-labelledby="tickets-heading">
+                <h2 id="tickets-heading">Find tickets</h2>
+                <form id="ticket-form">
+                    <label for="ticket-filter">Find by</label>
+                    <select id="ticket-filter" name="filter"><option value="userId">User ID</option><option value="showtimeId">Showtime ID</option></select>
+                    <label for="ticket-filter-id">ID</label>
+                    <input id="ticket-filter-id" name="id" type="number" min="1" step="1" required>
+                    <button type="submit">Find Tickets</button>
+                    <p class="form-status" role="status" aria-live="polite"></p>
+                </form>
+                <div id="admin-tickets" class="admin-grid"></div>
+            </section>
+        </div>
+    </main>
+    <div id="toasts" role="status" aria-live="polite"></div>
+    <script src="shared/shared.js"></script>
+    <script src="js/admin.js?v=1"></script>
+</body>
+</html>
