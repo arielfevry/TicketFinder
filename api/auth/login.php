@@ -20,7 +20,7 @@ if($email == '' || $password == '')
 }
 
 $db = getDB();
-$stmt = $db->prepare('SELECT ID, FirstName, LastName, Email, Password, Active
+$stmt = $db->prepare('SELECT ID, FirstName, LastName, Email, Password, Active, IsAdmin
 	FROM `User`
 	WHERE Email = ?');
 
@@ -32,13 +32,15 @@ $user = $stmt->fetch();
 
 //check if the password of user with that email matches the input
 //if no match or user doesnt exist, return error
-//if(!$user || !password_verify($password, $user['Password']))
-if(!$user || $password !== $user['Password']) //change this to above code when passwords are hash
+
+if(!$user || !password_verify($password, $user['Password']))
 {
 	respond(401, ['error' => 'Invalid email or password']);
 }
 
 unset($user['Password']);
+
+
 
 //if there is a match, return info
 //code.js done by frontend will use this to create a cookie:
@@ -47,7 +49,9 @@ respond(200, [
 	'firstName' => $user['FirstName'], 
 	'lastName' => $user['LastName'], 
 	'email' => $user['Email'],
-	'active' => (bool)$user['Active'] ]);
+	'active' => (bool)$user['Active'], 
+	'isAdmin' => (bool)$user['IsAdmin']]);
+
 
 
 
