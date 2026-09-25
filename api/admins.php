@@ -217,7 +217,7 @@ switch($sub)
 						$userID = $_GET['userId'];
 
 						$stmt = $db->prepare("SELECT ID, FirstName, LastName FROM User WHERE ID = ?");
-						$stmt->execute([$userID)];
+						$stmt->execute([$userID]);
 						if(!$stmt->fetch()){
 							respond(404, ['error' => 'User could not be found']);
 						}
