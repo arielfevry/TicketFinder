@@ -1,22 +1,45 @@
 <!DOCTYPE html>
+<html lang="en">
 
 <head>
-<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Movie | TicketFinder</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Movie | TicketFinder</title>
 </head>
 
 <body>
-    <h1>TicketFinder</h1>  
-    
-    <div id="movie-details"> </div>
+
+    <h1>TicketFinder</h1>
+
+    <!-- The selected movie will be inserted here by movie.js -->
+    <div id="movie-details"></div>
+
 
     <h2>Showtimes</h2>
 
-    <div id="showtime-list"> </div>
+    <!-- The selected movie's showtimes will be inserted here -->
+    <div id="showtime-list"></div>
 
-    <a> /movies.html </a>
-</body> 
 
+    <!-- Seat buttons will appear here after a showtime is selected -->
+    <div id="seat-selection"></div>
+
+
+    <br>
+
+    <a href="movies.html">
+        Back to Movies
+    </a>
+
+
+    <!-- Load the JavaScript after the HTML elements exist -->
+    <script src="js/movie.js"></script>
+
+</body>
 
 </html>
