@@ -82,6 +82,7 @@ document.getElementById('registerForm').addEventListener('submit', async e =>
         const err = document.getElementById('registerError');
         err.textContent = '';
 
+        // Get user input
         const firstName = document.getElementById('regFirstName').value.trim();
         const lastName = document.getElementById('regLastName').value.trim();
         const email = document.getElementById('regEmail').value.trim();
@@ -93,6 +94,7 @@ document.getElementById('registerForm').addEventListener('submit', async e =>
             return;
         }
 
+        // Password does not match
         if (password !== confirm)
         {
             err.textContent = 'Passwords do not match.';
