@@ -7,10 +7,10 @@ if (isDisabled(state.user) || new URLSearchParams(window.location.search).has('d
     history.replaceState(null, '', window.location.pathname); // Drops ?disabled=1 from the URL
 }
 
-// Skip to movies if already signed in
+// Skip to home page if already signed in
 if (state.user)
 {
-    window.location.href = 'movies.html';
+    window.location.href = 'tickets.html';
 }
 
 // Confirm login credentials

@@ -134,7 +134,7 @@ function requireAdmin()
 {
     if (!state.user.isAdmin)
     {
-        window.location.href = 'movies.html';
+        window.location.href = 'tickets.html';
         return false;
     }
     return true;
