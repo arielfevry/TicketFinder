@@ -1,337 +1,508 @@
-const parameters = new URLSearchParams(window.location.search);
-const movieId = Number(parameters.get("id"));
+async function fetchMovieData(path) {
+    if (USE_MOCK) return api(path);
 
+    const response = await fetch(path, {
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + state.user.id,
+            'X-User-Id': state.user.id,
+        },
+    });
 
-// Temporary movie data
-const movies = [
-    {
-        ID: 1,
-        Title: "The Fortnite Movie",
-        Genre: "Action",
-        ReleaseDate: "2026-09-01",
-        ImageUrl: "cat_img.jpg"
-    },
-    {
-        ID: 2,
-        Title: "Movie Two",
-        Genre: "Comedy",
-        ReleaseDate: "2026-09-10",
-        ImageUrl: "cat_img.jpg"
+    if (response.status === 401) {
+        signOut();
+        throw new Error('Your session expired. Sign in again.');
     }
-];
 
-
-// Temporary showtime data
-const showtimes = [
-    {
-        ID: 1,
-        MovieID: 1,
-        Datetime: "2026-09-25 6:30 PM",
-        Location: "Theater 1",
-        Seats: 50
-    },
-    {
-        ID: 2,
-        MovieID: 1,
-        Datetime: "2026-09-25 9:00 PM",
-        Location: "Theater 2",
-        Seats: 40
-    },
-    {
-        ID: 3,
-        MovieID: 2,
-        Datetime: "2026-09-26 7:00 PM",
-        Location: "Theater 3",
-        Seats: 60
+    // Remove the route comment emitted before the endpoint's JSON.
+    const text = (await response.text()).replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');
+    let data;
+    try {
+        data = JSON.parse(text);
+    } catch {
+        throw new Error('The server returned an invalid response.');
     }
-];
 
-
-// Find the movie selected in the URL
-const selectedMovie = movies.find(function(movie) {
-    return movie.ID === movieId;
-});
-
-
-// Get the movie-details div
-const movieDetails = document.getElementById("movie-details");
-
-
-// Display movie information
-if (selectedMovie) {
-
-    movieDetails.innerHTML = `
-        <img
-            src="${selectedMovie.ImageUrl}"
-            alt="${selectedMovie.Title}"
-            width="200"
-        >
-
-        <h2>${selectedMovie.Title}</h2>
-
-        <p>Genre: ${selectedMovie.Genre}</p>
-
-        <p>Release Date: ${selectedMovie.ReleaseDate}</p>
-    `;
-
-}
-else {
-
-    movieDetails.innerHTML = `
-        <p>Movie not found.</p>
-    `;
-
+    if (!response.ok) {
+        throw new Error(data.error || 'Unable to load movie data.');
+    }
+    return data;
 }
 
-
-// Get showtimes belonging to this movie
-const selectedShowtimes = showtimes.filter(function(showtime) {
-    return showtime.MovieID === movieId;
-});
+const parameters =
+    new URLSearchParams(window.location.search);
 
 
-// Get showtime-list div
-const showtimeList = document.getElementById("showtime-list");
+const movieId =
+    Number(parameters.get("id"));
 
 
-// Display each showtime
-selectedShowtimes.forEach(function(showtime) {
 
-    const showtimeCard = document.createElement("div");
+async function loadMoviePage() {
 
-    showtimeCard.innerHTML = `
-        <p>${showtime.Datetime}</p>
-
-        <p>${showtime.Location}</p>
-
-        <p>Seat Capacity: ${showtime.Seats}</p>
-
-        <button
-            class="select-showtime"
-            data-showtime-id="${showtime.ID}"
-        >
-            Select Showtime
-        </button>
-    `;
-
-    showtimeList.appendChild(showtimeCard);
-});
+    const movieDetails =
+        document.getElementById("movie-details");
 
 
-// Get seat-selection div
-const seatSelection =
-    document.getElementById("seat-selection");
+    const showtimeList =
+        document.getElementById("showtime-list");
 
 
-// Get all Select Showtime buttons
-const showtimeButtons =
-    document.querySelectorAll(".select-showtime");
+    if (!movieId) {
+
+        movieDetails.innerHTML =
+            "<p>Invalid movie.</p>";
+
+        return;
+    }
 
 
-// Listen for a showtime being selected
-showtimeButtons.forEach(function(button) {
+    try {
 
-    button.addEventListener("click", async function() {
+        // Get the selected movie from the real API
+        const movie =
+            await fetchMovieData(`${MOVIES_PATH}/${movieId}`);
 
-        const showtimeId =
-            Number(button.dataset.showtimeId);
-
-
-        const selectedShowtime =
-            showtimes.find(function(showtime) {
-
-                return showtime.ID === showtimeId;
-
-            });
+        if (!movie || typeof movie.Title !== 'string') {
+            throw new Error('The server did not return movie details.');
+        }
 
 
-        // Tell the user seats are loading
-        seatSelection.innerHTML = `
-            <h2>Select a Seat</h2>
-            <p>Loading seats...</p>
+        movieDetails.innerHTML = `
+            <img
+                src="${movie.ImageUrl}"
+                alt="${movie.Title}"
+                width="200"
+            >
+
+            <h2>${movie.Title}</h2>
+
+            <p>
+                Genre: ${movie.Genre}
+            </p>
+
+            <p>
+                Release Date:
+                ${movie.ReleaseDate}
+            </p>
         `;
 
 
-        try {
-
-            // REAL BACKEND REQUEST
-            const response =
-                await fetch(`showtimes/${showtimeId}/seats`);
+        document.title =
+            `${movie.Title} | TicketFinder`;
 
 
-            // Check if the backend rejected the request
-            if (!response.ok) {
+        await loadShowtimes(movie);
 
-                if (response.status === 401) {
+    }
 
-                    seatSelection.innerHTML = `
-                        <h2>Select a Seat</h2>
+    catch (error) {
 
-                        <p>
-                            You must be logged in to view seats.
-                        </p>
-                    `;
+        console.error(
+            "Movie error:",
+            error
+        );
+
+
+        movieDetails.innerHTML = `
+            <p>
+                ${error.message}
+            </p>
+        `;
+
+    }
+
+}
+
+
+
+async function loadShowtimes(movie) {
+
+    const showtimeList =
+        document.getElementById("showtime-list");
+
+
+    showtimeList.innerHTML =
+        "<p>Loading showtimes...</p>";
+
+
+    try {
+
+        // Get real showtimes belonging to this movie
+        const showtimes =
+            await fetchMovieData(
+                `${SHOWTIMES_PATH}?movie=${movieId}`
+            );
+
+        if (!Array.isArray(showtimes)) {
+            throw new Error('The server did not return a showtime list.');
+        }
+
+
+        showtimeList.innerHTML = "";
+
+
+        showtimes.forEach(function(showtime) {
+
+            const showtimeCard =
+                document.createElement("div");
+
+
+            showtimeCard.innerHTML = `
+                <p>
+                    ${showtime.Datetime}
+                </p>
+
+                <p>
+                    ${showtime.Location}
+                </p>
+
+                <p>
+                    Capacity:
+                    ${showtime.Seats}
+                </p>
+
+                <button
+                    type="button"
+                    class="select-showtime"
+                    data-showtime-id="${showtime.ID}"
+                >
+                    Select Showtime
+                </button>
+            `;
+
+
+            showtimeList.appendChild(
+                showtimeCard
+            );
+
+        });
+
+
+        const showtimeButtons =
+            document.querySelectorAll(
+                ".select-showtime"
+            );
+
+
+        showtimeButtons.forEach(function(button) {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    const showtimeId =
+                        Number(
+                            button.dataset.showtimeId
+                        );
+
+
+                    loadSeats(
+                        movie,
+                        showtimeId
+                    );
+
+                }
+            );
+
+        });
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Showtime error:",
+            error
+        );
+
+
+        showtimeList.innerHTML = `
+            <p>
+                No showtimes are currently available.
+            </p>
+        `;
+
+    }
+
+}
+
+
+
+async function loadSeats(movie, showtimeId) {
+
+    const seatSelection =
+        document.getElementById(
+            "seat-selection"
+        );
+
+
+    seatSelection.innerHTML = `
+        <h2>Select a Seat</h2>
+
+        <p>Loading seats...</p>
+    `;
+
+
+    try {
+
+        // Get REAL seat availability
+        const data =
+            await fetchMovieData(
+                `${SHOWTIMES_PATH}/${showtimeId}/seats`
+            );
+
+
+        const seats =
+            data.seats;
+
+        if (!Array.isArray(seats)) {
+            throw new Error('The server did not return a seat list.');
+        }
+
+
+        seatSelection.innerHTML = `
+            <h2>Select a Seat</h2>
+
+            <div id="seat-list"></div>
+
+            <p id="selected-seat">
+                No seat selected.
+            </p>
+
+            <div>
+
+                <label for="customer-age">
+                    Age
+                </label>
+
+                <input
+                    id="customer-age"
+                    type="number"
+                    min="1"
+                    max="120"
+                >
+
+            </div>
+
+            <br>
+
+            <button
+                type="button"
+                id="purchase-button"
+                disabled
+            >
+                Purchase Ticket
+            </button>
+        `;
+
+
+        const seatList =
+            document.getElementById(
+                "seat-list"
+            );
+
+
+        const selectedSeatText =
+            document.getElementById(
+                "selected-seat"
+            );
+
+
+        const purchaseButton =
+            document.getElementById(
+                "purchase-button"
+            );
+
+
+        let selectedSeat = null;
+
+
+        seats.forEach(function(seat) {
+
+            const seatButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            seatButton.type =
+                "button";
+
+
+            seatButton.textContent =
+                seat.seatNumber;
+
+
+            if (
+                seat.is_availible === false
+            ) {
+
+                seatButton.disabled =
+                    true;
+
+
+                seatButton.textContent +=
+                    " (Taken)";
+
+            }
+
+
+            seatButton.addEventListener(
+                "click",
+                function() {
+
+                    selectedSeat =
+                        seat.seatNumber;
+
+
+                    selectedSeatText.textContent =
+                        "Selected Seat: " +
+                        selectedSeat;
+
+
+                    purchaseButton.disabled =
+                        false;
+
+                }
+            );
+
+
+            seatList.appendChild(
+                seatButton
+            );
+
+        });
+
+
+
+        purchaseButton.addEventListener(
+            "click",
+            async function() {
+
+                const ageInput =
+                    document.getElementById(
+                        "customer-age"
+                    );
+
+
+                const age =
+                    Number(ageInput.value);
+
+
+                if (!selectedSeat) {
+
+                    toast(
+                        "Please select a seat.",
+                        true
+                    );
 
                     return;
                 }
 
 
-                throw new Error(
-                    "Unable to load seats."
-                );
+                if (
+                    !age ||
+                    age < 1 ||
+                    age > 120
+                ) {
+
+                    toast(
+                        "Please enter a valid age.",
+                        true
+                    );
+
+                    return;
+                }
+
+
+                purchaseButton.disabled =
+                    true;
+
+
+                try {
+
+                    // REAL ticket purchase
+                    await api(
+                        TICKETS_PATH,
+                        {
+                            method: "POST",
+
+                            body: {
+                                MovieID: movieId,
+                                ShowTimeID: showtimeId,
+                                Age: age,
+                                SeatNumber: selectedSeat
+                            }
+                        }
+                    );
+
+
+                    toast(
+                        "Ticket purchased!"
+                    );
+
+
+                    setTimeout(
+                        function() {
+
+                            window.location.href =
+                                "tickets.html?v=20260925-3";
+
+                        },
+                        500
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Purchase error:",
+                        error
+                    );
+
+
+                    toast(
+                        error.message,
+                        true
+                    );
+
+
+                    purchaseButton.disabled =
+                        false;
+
+                }
+
             }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Seat error:",
+            error
+        );
 
 
-            // Convert backend JSON into JavaScript
-            const data =
-                await response.json();
+        seatSelection.innerHTML = `
+            <h2>Select a Seat</h2>
+
+            <p>
+                ${error.message}
+            </p>
+        `;
+
+    }
+
+}
 
 
-            // The API stores the actual seats inside data.seats
-            const seats =
-                data.seats;
 
+if (requireAuth()) {
 
-            seatSelection.innerHTML = `
-                <h2>Select a Seat</h2>
+    loadMoviePage();
 
-                <p>
-                    ${selectedShowtime.Datetime}
-                </p>
-
-                <p>
-                    ${selectedShowtime.Location}
-                </p>
-
-                <div id="seat-list"></div>
-
-                <p id="selected-seat"></p>
-
-                <button
-                    id="purchase-button"
-                    disabled
-                >
-                    Purchase Ticket
-                </button>
-            `;
-
-
-            const seatList =
-                document.getElementById("seat-list");
-
-
-            const selectedSeatText =
-                document.getElementById("selected-seat");
-
-
-            const purchaseButton =
-                document.getElementById("purchase-button");
-
-
-            let selectedSeat = null;
-
-
-            // Create one button for every seat returned by the API
-            seats.forEach(function(seat) {
-
-                const seatButton =
-                    document.createElement("button");
-
-
-                seatButton.textContent =
-                    seat.seatNumber;
-
-
-                // IMPORTANT:
-                // The backend currently spells this
-                // "is_availible"
-                if (seat.is_availible === false) {
-
-                    seatButton.disabled = true;
-
-                    seatButton.textContent +=
-                        " (Taken)";
-
-                }
-
-
-                seatButton.addEventListener(
-                    "click",
-                    function() {
-
-                        selectedSeat =
-                            seat.seatNumber;
-
-
-                        selectedSeatText.textContent =
-                            "Selected Seat: " +
-                            selectedSeat;
-
-
-                        purchaseButton.disabled =
-                            false;
-
-                    }
-                );
-
-
-                seatList.appendChild(seatButton);
-
-            });
-
-
-            purchaseButton.addEventListener(
-                "click",
-                function() {
-
-                    console.log(
-                        "Movie ID:",
-                        movieId
-                    );
-
-                    console.log(
-                        "Showtime ID:",
-                        showtimeId
-                    );
-
-                    console.log(
-                        "Seat:",
-                        selectedSeat
-                    );
-
-
-                    alert(
-                        "Selected:\n" +
-                        selectedMovie.Title +
-                        "\n" +
-                        selectedShowtime.Datetime +
-                        "\nSeat: " +
-                        selectedSeat
-                    );
-
-                }
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Seat API error:",
-                error
-            );
-
-
-            seatSelection.innerHTML = `
-                <h2>Select a Seat</h2>
-
-                <p>
-                    Seats could not be loaded.
-                </p>
-            `;
-
-        }
-
-    });
-
-});
+}

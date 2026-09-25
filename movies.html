@@ -4,19 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Movies | TicketFinder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/movies.css?v=20260925-3">
 </head>
 
 <body>
 
-    <h1>TicketFinder</h1>
+    <header>
+        <a href="movies.html">TicketFinder</a>
 
-    <h2>Movies</h2>
+        <nav>
+            <a href="movies.html">Now Showing</a>
+            <a href="tickets.html?v=20260925-3">My Tickets</a>
+            <a href="admin.html" id="adminLink" hidden>Admin</a>
+        </nav>
 
-    <div id="movie-list"></div>
+        <span id="userName"></span>
+        <button type="button" id="logoutBtn">Sign Out</button>
+    </header>
 
-    <script src="js/movies.js"></script>
+    <main>
+        <h1>Now Showing</h1>
+        <div id="movie-list"></div>
+    </main>
+
+    <div id="toasts" role="status" aria-live="polite"></div>
+
+    <script src="shared/shared.js"></script>
+    <script src="js/movies.js?v=20260925-3"></script>
 
 </body>
 

@@ -3,42 +3,42 @@
 
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie | TicketFinder</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/movies.css?v=20260925-3">
 </head>
 
 <body>
 
-    <h1>TicketFinder</h1>
+    <header>
+        <a href="movies.html">TicketFinder</a>
 
-    <!-- The selected movie will be inserted here by movie.js -->
-    <div id="movie-details"></div>
+        <nav>
+            <a href="movies.html">Now Showing</a>
+            <a href="tickets.html?v=20260925-3">My Tickets</a>
+            <a href="admin.html" id="adminLink" hidden>Admin</a>
+        </nav>
 
+        <span id="userName"></span>
+        <button type="button" id="logoutBtn">Sign Out</button>
+    </header>
 
-    <h2>Showtimes</h2>
+    <main>
+        <a href="movies.html">Back to Movies</a>
 
-    <!-- The selected movie's showtimes will be inserted here -->
-    <div id="showtime-list"></div>
+        <div id="movie-details"></div>
 
+        <h2>Showtimes</h2>
+        <div id="showtime-list"></div>
 
-    <!-- Seat buttons will appear here after a showtime is selected -->
-    <div id="seat-selection"></div>
+        <div id="seat-selection"></div>
+    </main>
 
+    <div id="toasts" role="status" aria-live="polite"></div>
 
-    <br>
-
-    <a href="movies.html">
-        Back to Movies
-    </a>
-
-
-    <!-- Load the JavaScript after the HTML elements exist -->
-    <script src="js/movie.js"></script>
+    <script src="shared/shared.js"></script>
+    <script src="js/movie.js?v=20260925-3"></script>
 
 </body>
 
