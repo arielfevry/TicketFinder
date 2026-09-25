@@ -20,7 +20,7 @@ if($email == '' || $password == '')
 }
 
 $db = getDB();
-$stmt = $db->prepare('SELECT ID, FirstName, LastName, Email, Password, Active
+$stmt = $db->prepare('SELECT ID, FirstName, LastName, Email, Password, Active, IsAdmin
 	FROM `User`
 	WHERE Email = ?');
 
