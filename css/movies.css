@@ -1,0 +1,54 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, sans-serif; line-height: 1.5; color: #292524; background: #faf7f7; }
+a { color: #b91c1c; }
+header { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; padding: 18px 5%; color: white; background: #701a1a; }
+header a { color: white; text-decoration: none; }
+header > a { font-size: 22px; font-weight: bold; }
+nav { display: flex; flex-wrap: wrap; gap: 18px; }
+nav a:hover { text-decoration: underline; }
+#userName { margin-left: auto; }
+main { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+h1, h2, h3 { line-height: 1.25; }
+#movie-list, #showtime-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+#movie-list > div, #showtime-list > div, #movie-details:not(:empty), #seat-selection:not(:empty) { padding: 20px; border: 1px solid #dce1e8; border-radius: 8px; background: white; }
+#movie-list > div { display: flex; flex-direction: column; align-items: flex-start; }
+#movie-list img { width: 100%; height: 220px; object-fit: contain; background: #edf0f4; border-radius: 4px; }
+#movie-list p { margin: 0 0 12px; }
+button, #movie-list a { display: inline-block; padding: 10px 16px; border: 1px solid transparent; border-radius: 5px; font: inherit; color: white; background: #b91c1c; text-decoration: none; cursor: pointer; }
+#movie-list a { margin-top: auto; }
+button:hover:not(:disabled), #movie-list a:hover { background: #991b1b; }
+#logoutBtn { border-color: #cbd5e1; background: transparent; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid #d18b00; outline-offset: 3px; }
+button:disabled { color: #4b5563; background: #e5e7eb; cursor: not-allowed; }
+#movie-details, #seat-selection { margin-top: 24px; }
+#movie-details img { max-width: 100%; height: auto; border-radius: 4px; }
+#seat-list { display: flex; flex-wrap: wrap; gap: 10px; }
+input { max-width: 100%; padding: 8px; border: 1px solid #8793a5; border-radius: 4px; font: inherit; }
+#toasts { position: fixed; right: 20px; bottom: 20px; max-width: calc(100% - 40px); }
+#toasts > div { margin-top: 8px; padding: 12px 18px; border-radius: 5px; color: white; background: #701a1a; }
+[hidden] { display: none !important; }
+@media (max-width: 600px) {
+    header { gap: 12px; }
+    nav { width: 100%; }
+    #userName { margin-left: 0; }
+    main { padding: 0 16px; }
+    #movie-list, #showtime-list { grid-template-columns: 1fr; }
+}
+
+header > div { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin-left: auto; }
+nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 6px; }
+label[for="ticketSearch"] { display: block; margin-bottom: 8px; font-weight: bold; }
+#ticketSearch { width: 100%; max-width: 480px; padding: 12px; background: white; }
+#ticketList { display: grid; gap: 18px; margin-top: 24px; }
+#ticketList > article { display: flex; align-items: stretch; justify-content: space-between; border: 1px solid #e5d5d5; border-left: 5px solid #b91c1c; border-radius: 8px; background: white; overflow: hidden; }
+#ticketList > article > div:first-child { padding: 20px; min-width: 0; overflow-wrap: anywhere; }
+#ticketList h3 { margin: 0 0 10px; }
+#ticketList p { margin: 6px 0; }
+#ticketList > article > div:last-child { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 90px; padding: 16px; border-left: 1px dashed #d6b5b5; color: #991b1b; background: #fef2f2; }
+#ticketList > article > div:last-child p:last-child { font-size: 28px; font-weight: bold; }
+#ticketList > p { padding: 20px; border: 1px solid #e5d5d5; border-radius: 8px; background: white; }
+@media (max-width: 600px) {
+    header > div { margin-left: 0; }
+    #ticketList > article > div:first-child { padding: 16px; }
+    #ticketList > article > div:last-child { min-width: 70px; padding: 12px; }
+}
