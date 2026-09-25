@@ -1,31 +1,29 @@
 
+<?php
+
 /* API ROUTES
 
 Admin User Management:
-
 GET             /admins/users               : return list of users
-POST	        /admins/users               : create new admin user
+POST            /admins/users               : create new admin user
 GET             /admins/users/{id}          : return user account
-PUT	        /admins/users/{id}         : edit users account (change password or active status)
+PUT             /admins/users/{id}         : edit users account (change password or active status)
 
 Admin Ticket Management:
 
-GET             /admins/tickets             		: return tickets for showings or users
-GET		/admins/tickets?showtimeId={id}	 	: return tickets for  a given showing
-GET 		/admins/tickets?userId=12 		: return tickets for a given user
-GET             /admins/tickets/{id}      		: get a specific ticket
-DELETE          /admins/tickets/{id}        		: cancel a specific ticket
+GET             /admins/tickets                         : return tickets for showings or users
+GET             /admins/tickets?showtimeId={id}         : return tickets for  a given showing
+GET             /admins/tickets?userId=12               : return tickets for a given user
+GET             /admins/tickets/{id}                    : get a specific ticket
+DELETE          /admins/tickets/{id}                    : cancel a specific ticket
 
 Admin Showtime Management:
-GET		/admins/showtimes/{id}	   : return showtime with that Id
-POST            /admins/showtimes	   : create new showtime
-PUT		/admins/showtimes/{id}      : edit existing showtime
-DELETE          /admins/showtimes/{id} 	   : delete showtime
+GET             /admins/showtimes/{id}     : return showtime with that Id
+POST            /admins/showtimes          : create new showtime
+PUT             /admins/showtimes/{id}      : edit existing showtime
+DELETE          /admins/showtimes/{id}     : delete showtime
 
 */
-
-
-<?php
 
 require_once __DIR__ . '/config/helpers.php';
 require_once __DIR__ . '/config/db.php';
@@ -178,7 +176,9 @@ switch($sub)
 				respond(201, ['success' => true, 'message' => 'New Admin added successfully']);
 
 			break;
-
+			default:
+				respond(400, ['error' => 'resource not found']);
+			break;
 		}
 
 	break;
@@ -231,6 +231,10 @@ switch($sub)
                                                 respond(200, ['success' => true, 'tickets' => $tickets]);
 
 					}
+					else
+					{
+						respond(400, ['error' => 'user id or showtime id is required']);
+					}
 				}
 				else{
 					//GET + id -> return a specific ticket
@@ -253,6 +257,12 @@ switch($sub)
 			case 'DELETE':
 				//DELETE -> cancel given ticket
 				//get the ticket with the id:
+				
+				if($id === null){
+
+					respond(400, ['error' => 'id not valid']);
+				}
+
 				$stmt = $db->prepare("SELECT `ID`, `ShowTimeID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `Age`
                                         FROM Ticket
                                         WHERE ID = ?
@@ -274,6 +284,7 @@ switch($sub)
 					respond(200, ['success' => true, 'message' => 'Ticket cancelled successfully']);
 				}
 			break;
+	
 
 		}
 
@@ -404,13 +415,13 @@ switch($sub)
 
 				//movieid:
 				$movieId = $body['movieId'] ?? null;
-				$stmt = $db->prepare("SELECT ID FROM Movies WHERE ID = ?");
+				$stmt = $db->prepare("SELECT ID FROM Movie WHERE ID = ?");
 				$stmt->execute([$movieId]);
 				if(!$stmt->fetch()){
 					respond(404, ['error' => 'invalid movie id']);
 				}
 
-				$stmt = $db->prepare("INSERT INTO `ShowTimes` (MovieID, Seats, Datetime, Location) VALUES (?, ?, ?, ?));
+				$stmt = $db->prepare("INSERT INTO `ShowTimes` (MovieID, Seats, Datetime, Location) VALUES (?, ?, ?, ?)");
 				$stmt->execute([$movieId, $seats, $datetime, $location]);
 
 				respond(201, ['success' => true, 'message' => 'new showtime created']);
@@ -436,6 +447,10 @@ switch($sub)
 
 				respond(200, ['success' => true, 'message' => 'showtime deleted successfully']);
 			break;
+			default:
+                                respond(400, ['error' => 'resource not found']);
+                        break;
+
 		}
 
 	break;
