@@ -164,7 +164,7 @@ function initTopbar()
 }
 
 // Boots disabled users off every page except index
-function (isDisabled(state.user) && !document.getElementById('loginForm'))
+if (isDisabled(state.user) && !document.getElementById('loginForm'))
 {
   signOut('disabled');
 }
