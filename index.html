@@ -5,73 +5,75 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>TicketFinder</title>
+        <title>Sign In | TicketFinder</title>
+
+        <!-- Shared base styles (same as the other pages), then sign-in page styles -->
+        <link rel="stylesheet" href="css/movies.css?v=20260925-3">
+        <link rel="stylesheet" href="css/index.css?v=1">
     </head>
-    
+
     <body>
-        <main>
 
-        <!-- LOGIN -->
-         <section>
-                <div>
-                    <h1>Ticket<span>Finder</span></h1>
-                    <p>Grab your ticket before someone else does!</p>
-                
+        <!-- Header bar (brand only, since no one is signed in yet) -->
+        <header>
+            <a href="index.html">TicketFinder</a>
+        </header>
 
-                  <!-- Login Form -->
-                    <form id="loginForm">
+        <main class="auth-main">
 
-                        <!-- Email Input -->
-                        <label for="loginEmail">Email</label>
-                        <input name="email", id="loginEmail" type="email" autocomplete="username" required>
-                    
-                        <!-- Password Input -->
-                        <label for="loginPassword">Password</label>
-                        <input name="password", id="loginPassword", type="password" autocomplete="current-password" required>
+            <!-- LOGIN -->
+            <section class="auth-card">
+                <h1>Ticket<span>Finder</span></h1>
+                <p class="auth-tagline">Grab your ticket before someone else does!</p>
 
-                        <button type="submit">Sign in</button>
-                        <p id="loginError" role="alert" aria-live="polite"></p>
-                    </form>
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form">
 
-                  
-                    
-                    <p id="showRegisterLine">
-                        <button type="button" id="showRegisterBtn">Need an account? Register</button>
-                    </p>
-                    
-                    <!-- Register Form -->
-                    <form id="registerForm" hidden novalidate>
-                        <!-- First Name -->
-                        <label for="regFirstName">First Name</label>
-                        <input id="regFirstName" name="firstName" required>
+                    <!-- Email Input -->
+                    <label for="loginEmail">Email</label>
+                    <input name="email" id="loginEmail" type="email" autocomplete="username" required>
 
-                        <!-- Last Name -->
-                        <label for="regLastName">Last Name</label>
-                        <input id="regLastName" name="lastName" required>
+                    <!-- Password Input -->
+                    <label for="loginPassword">Password</label>
+                    <input name="password" id="loginPassword" type="password" autocomplete="current-password" required>
 
-                        <!-- Email -->
-                        <label for="regEmail">Email</label>
-                        <input id="regEmail" name="email" type="email" autocomplete="email" required>
+                    <button type="submit">Sign in</button>
+                    <p id="loginError" class="auth-message" role="alert" aria-live="polite"></p>
+                </form>
 
-                        <!-- Password -->
-                        <label for="regPassword">Password</label>
-                        <input id="regPassword" name="password" type="password" autocomplete="new-password" required>
+                <p id="showRegisterLine" class="auth-switch">
+                    <button type="button" id="showRegisterBtn" class="link-button">Need an account? Register</button>
+                </p>
 
-                        <!-- Confirm Password -->
-                        <label for="regPasswordConfirm">Confirm Password</label>
-                        <input id="regPasswordConfirm" type="password" autocomplete="new=password" required>
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form" hidden novalidate>
+                    <!-- First Name -->
+                    <label for="regFirstName">First Name</label>
+                    <input id="regFirstName" name="firstName" autocomplete="given-name" required>
 
-                        <button type="submit">Create Account</button>
-                        <p id="registerError" role="alert" aria-live="polite"></p>
-                    </form>
+                    <!-- Last Name -->
+                    <label for="regLastName">Last Name</label>
+                    <input id="regLastName" name="lastName" autocomplete="family-name" required>
 
-                    <p id="showSignInLine" hidden>
-                        <button type="button" id="showSignInBtn">Already have an account? Sign In</button>
-                    </p>
+                    <!-- Email -->
+                    <label for="regEmail">Email</label>
+                    <input id="regEmail" name="email" type="email" autocomplete="email" required>
 
+                    <!-- Password -->
+                    <label for="regPassword">Password</label>
+                    <input id="regPassword" name="password" type="password" autocomplete="new-password" required>
 
+                    <!-- Confirm Password -->
+                    <label for="regPasswordConfirm">Confirm Password</label>
+                    <input id="regPasswordConfirm" type="password" autocomplete="new-password" required>
 
-                </div>
+                    <button type="submit">Create Account</button>
+                    <p id="registerError" class="auth-message" role="alert" aria-live="polite"></p>
+                </form>
+
+                <p id="showSignInLine" class="auth-switch" hidden>
+                    <button type="button" id="showSignInBtn" class="link-button">Already have an account? Sign In</button>
+                </p>
             </section>
 
         </main>

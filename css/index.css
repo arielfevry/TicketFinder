@@ -1,0 +1,41 @@
+/*
+TicketFinder - Sign In / Register page
+Loaded after css/movies.css, which provides the shared base styles
+(fonts, colors, header, buttons, inputs, focus rings).
+*/
+
+/* Center the sign-in card below the header */
+.auth-main { display: flex; justify-content: center; margin-top: 56px; }
+
+/* Card: white panel with the same border and radius as the ticket and admin
+   cards, plus a red accent stripe like the ticket cards' left edge */
+.auth-card { width: 100%; max-width: 420px; padding: 32px; border: 1px solid #e5d5d5; border-top: 5px solid #b91c1c; border-radius: 8px; background: white; }
+
+/* Title and tagline */
+.auth-card h1 { margin: 0; font-size: 34px; }
+.auth-card h1 span { color: #b91c1c; }
+.auth-tagline { margin: 6px 0 24px; color: #57534e; }
+
+/* Form layout (matches the admin forms) */
+.auth-form { display: grid; gap: 10px; }
+.auth-form label { font-weight: bold; }
+.auth-form input { width: 100%; padding: 10px; background: white; }
+.auth-form button[type="submit"] { width: 100%; margin-top: 8px; }
+
+/* Error / status messages under each form */
+.auth-message { min-height: 1.5em; margin: 4px 0 0; color: #b91c1c; overflow-wrap: anywhere; }
+.auth-message:empty { margin: 0; }
+
+/* "Need an account?" / "Already have an account?" line, separated by the
+   dashed rule used on the ticket stubs */
+.auth-switch { margin: 12px 0 0; padding-top: 16px; border-top: 1px dashed #d6b5b5; text-align: center; }
+
+/* Text-style button for switching between sign in and register */
+.link-button { padding: 4px 6px; border: none; color: #b91c1c; background: transparent; }
+.link-button:hover:not(:disabled) { color: #991b1b; background: transparent; text-decoration: underline; }
+
+@media (max-width: 600px) {
+    .auth-main { margin-top: 24px; }
+    .auth-card { padding: 24px 20px; }
+    .auth-card h1 { font-size: 28px; }
+}
