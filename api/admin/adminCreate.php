@@ -1,19 +1,29 @@
 <?php
 
-//connect to the database:
-require_once __DIR__ . '/../config/db.php'; 
+require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/helpers.php';
 
-//Only execute if POST:
-if($_SERVER["REQUEST_METHOD"] != "POST")
+
+if($_SERVER['REQUEST_METHOD'] !== 'POST')
 {
-	respond(405, ['error'  => 'Request must be POST']);
+	respond(405, ['error' => 'Request must be POST']);
+	
 }
 
+
+$db = getDB();
+
+//check request user ID to make sure it is in admin list
+$userID = requireAuth();
+requireAdmin($userID);
+
+
+//get new user info:
 $body = getRequestBody();
 $firstName = clean($body['firstName'] ?? '');
 $lastName = clean($body['lastName'] ?? '');
 $email = clean($body['email'] ?? '');
-$password = $body['password'];
+$password = $body['password'] ?? '';
 
 
 //check if entries are empty
@@ -30,7 +40,6 @@ if(!filter_var($email, FILTER_VALIDATE_EMAIL))
 
 
 //make sure email doesn't already exist in database
-$db = getDB();
 $stmt = $db->prepare('SELECT ID FROM `User` WHERE Email = ?');
 
 $stmt->execute([$email]);
@@ -40,23 +49,18 @@ if($stmt->fetch())
 	respond(409, ['error'=> 'An account with this email already exists']);
 }
 
+//hash password:
+$passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-//store password as string:
-//make sure to change this for hash:
 $stmt = $db->prepare('INSERT INTO `User` (FirstName, LastName, Email, Password, Active, DateCreated, DateUpdated)
 		VALUES (?, ?, ?, ?, ?, ?, ?)');
 
-
-$hashPassword = password_hash($password, PASSWORD_DEFAULT);
 $date = date('Y-m-d H:i:s');
 
-$stmt->execute([ $firstName, $lastName, $email, $hashPassword, true, $date, $date]);
+$stmt->execute([ $firstName, $lastName, $email, $passwordHash, true, $date, $date]);
 
-respond(201, ['success' => true, 'message' => 'User registered successfully']);
+$newUserID = $db->lastInsertId();
 
-
-
-
-
-
-
+$stmt = $db->prepare('INSERT INTO `Admin` (AdminID) VALUES (?)');
+$stmt->execute([$newUserID]);
+respond(201, ['success' => true, 'message' => 'New Admin added successfully']);
