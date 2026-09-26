@@ -44,6 +44,9 @@ label[for="ticketSearch"] { display: block; margin-bottom: 8px; font-weight: bol
 #ticketList > article > div:first-child { padding: 20px; min-width: 0; overflow-wrap: anywhere; }
 #ticketList h3 { margin: 0 0 10px; }
 #ticketList p { margin: 6px 0; }
+#ticketList .ticket-delete { margin-top: 12px; padding: 6px 14px; border-color: #b91c1c; color: #b91c1c; background: white; }
+#ticketList .ticket-delete:hover:not(:disabled) { color: white; background: #b91c1c; }
+#ticketList .ticket-delete:disabled { border-color: #e5e7eb; color: #4b5563; background: #e5e7eb; }
 #ticketList > article > div:last-child { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 90px; padding: 16px; border-left: 1px dashed #d6b5b5; color: #991b1b; background: #fef2f2; }
 #ticketList > article > div:last-child p:last-child { font-size: 28px; font-weight: bold; }
 #ticketList > p { padding: 20px; border: 1px solid #e5d5d5; border-radius: 8px; background: white; }
