@@ -10,7 +10,7 @@ if (isDisabled(state.user) || new URLSearchParams(window.location.search).has('d
 // Skip to home page if already signed in
 if (state.user)
 {
-    window.location.href = 'tickets.html';
+    window.location.href = 'movies.html';
 }
 
 // Confirm login credentials
@@ -48,7 +48,7 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
         // Make cookie
         state.user = user;
         saveUser(state.user);
-        window.location.href = 'tickets.html';
+        window.location.href = 'movies.html';
     } catch (ex) {
         err.textContent = ex.status === 401
             ? 'That email and password do not match.'
@@ -123,7 +123,7 @@ document.getElementById('registerForm').addEventListener('submit', async e =>
 
             state.user = user;
             saveUser(state.user);
-            window.location.href = 'tickets.html';
+            window.location.href = 'movies.html';
         } catch (ex) {
             // Automatic sign in failed, send back to sign in
             btn.disabled = false;
