@@ -47,6 +47,7 @@ switch($method){
 
 	    //otherise respon
 	    respond(200, $ticket);
+		exit;
 	}
 
 	//allows users to search through their tickets by name
@@ -77,7 +78,8 @@ switch($method){
 
 	case 'PUT':
 		if(!$ticketId){
-			respond(404, ["error" => "Ticket ID Required"])
+			respond(404, ["error" => "Ticket ID Required"]);
+			exit;
 		}
 
 		//get request change
@@ -92,10 +94,10 @@ switch($method){
 
 		//execute
 		$db = getDB();
-		$stmt = $db->prepare("UPDATE Ticket SET `SeatNumber` = :seat WHERE ID = :id");
+		$stmt = $db->prepare("UPDATE Ticket SET `SeatNumber` = :seat WHERE `ID` = :id AND `CustomerID` = :userId");
 
 		try{
-			$success = $stmt->execute([':seat' => $seat]);
+			$success = $stmt->execute([':seat' => $seat, ':id' => $ticketId, ':userId' => $GLOBALS['USER_ID']]);
 
 			respond(201, ["message" => "Ticket successfully booked!"]);
 			exit;
@@ -107,6 +109,7 @@ switch($method){
 			}
 
 			respond(500, ["message" => "Booking failed."]);
+			exit;
 		}
 
 		break;
@@ -179,6 +182,7 @@ switch($method){
 		}
 
 		respond(500, ["message" => "Booking failed."]);
+		exit;
 	}
 	break;
 
