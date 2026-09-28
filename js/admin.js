@@ -1,5 +1,8 @@
 const ADMIN_PATH = '/TicketFinder/admins';
 let adminUsers = [];
+let adminMovies = [];
+let adminShowtimes = [];
+let showtimeLoadVersion = 0;
 
 async function adminRequest(path, { method = 'GET', body } = {}) {
     const response = await fetch(path, {
@@ -54,9 +57,14 @@ async function loadAdminMovies() {
     const data = await adminRequest(MOVIES_PATH);
     const movies = Array.isArray(data) ? data : data.movies;
     if (!Array.isArray(movies)) throw new Error('The server did not return a movie list.');
-    const select = document.getElementById('showtime-movie');
-    select.replaceChildren(el('option', { value: '' }, 'Select a movie'));
-    for (const movie of movies) select.append(el('option', { value: String(movie.ID) }, movie.Title));
+    adminMovies = movies;
+    for (const id of ['showtime-movie', 'edit-movie-select', 'edit-showtime-movie']) {
+        const select = document.getElementById(id);
+        const previous = select.value;
+        select.replaceChildren(el('option', { value: '' }, 'Select a movie'));
+        for (const movie of movies) select.append(el('option', { value: String(movie.ID) }, movie.Title));
+        select.value = previous;
+    }
 }
 
 function renderAdminUsers() {
@@ -136,6 +144,11 @@ async function initializeAdmin() {
         const data = await adminRequest(`${ADMIN_PATH}/users`);
         if (!Array.isArray(data.users)) throw new Error('The server did not return a user list.');
         adminUsers = data.users;
+        const userSelect = document.getElementById('password-user');
+        userSelect.replaceChildren(el('option', { value: '' }, 'Select a user'));
+        for (const user of adminUsers) {
+            userSelect.append(el('option', { value: String(user.ID) }, `${user.FirstName} ${user.LastName} (${user.Email})`));
+        }
         renderAdminUsers();
         await loadAdminMovies();
         document.getElementById('admin-content').hidden = false;
@@ -175,4 +188,165 @@ bindAdminForm('showtime-form', async (data, form) => {
 });
 
 bindAdminForm('ticket-form', findAdminTickets);
+
+function previewPoster() {
+    const image = document.getElementById('poster-preview');
+    const status = document.getElementById('poster-status');
+    const value = document.getElementById('edit-image').value.trim();
+    image.hidden = true;
+    image.removeAttribute('src');
+    status.textContent = '';
+    if (!value) return;
+    let url;
+    try {
+        url = new URL(value, window.location.href);
+        if (!['http:', 'https:'].includes(url.protocol)) throw new Error();
+    } catch {
+        status.textContent = 'Use an HTTP(S) image URL or a local image path.';
+        return;
+    }
+    image.onload = () => { image.hidden = false; status.textContent = 'Image loaded.'; };
+    image.onerror = () => { image.hidden = true; status.textContent = 'Image could not load. Check the URL or file path.'; };
+    image.src = url.href;
+}
+
+function selectEditMovie() {
+    const form = document.getElementById('edit-movie-form');
+    const movie = adminMovies.find(item => String(item.ID) === document.getElementById('edit-movie-select').value);
+    form.reset();
+    form.querySelector('fieldset').disabled = !movie;
+    form.querySelector('.form-status').textContent = '';
+    if (movie) {
+        form.elements.namedItem('title').value = movie.Title;
+        form.elements.namedItem('genre').value = movie.Genre;
+        form.elements.namedItem('release-date').value = movie.ReleaseDate;
+        form.elements.namedItem('img-url').value = movie.ImageUrl || '';
+    }
+    previewPoster();
+}
+
+async function loadEditShowtimes() {
+    const version = ++showtimeLoadVersion;
+    const movieId = document.getElementById('edit-showtime-movie').value;
+    const select = document.getElementById('edit-showtime-select');
+    const form = document.getElementById('edit-showtime-form');
+    adminShowtimes = [];
+    form.reset();
+    form.querySelector('fieldset').disabled = true;
+    select.disabled = true;
+    select.replaceChildren(el('option', { value: '' }, 'Select a showtime'));
+    const status = form.querySelector('.form-status');
+    status.textContent = movieId ? 'Loading showtimes...' : '';
+    if (!movieId) return;
+    try {
+        const data = await adminRequest(`${ADMIN_PATH}/showtimes?movieId=${encodeURIComponent(movieId)}`);
+        if (version !== showtimeLoadVersion) return;
+        if (!Array.isArray(data.showtimes)) throw new Error('The server did not return showtimes.');
+        adminShowtimes = data.showtimes;
+        for (const show of adminShowtimes) select.append(el('option', { value: String(show.ID) }, `${show.Datetime} — ${show.Location} (ID ${show.ID})`));
+        select.disabled = !adminShowtimes.length;
+        status.textContent = adminShowtimes.length ? '' : 'No showtimes for this movie. Add one above.';
+    } catch (error) {
+        if (version === showtimeLoadVersion) status.textContent = error.message;
+    }
+}
+
+document.getElementById('edit-movie-select').addEventListener('change', selectEditMovie);
+document.getElementById('edit-image').addEventListener('input', previewPoster);
+document.getElementById('edit-showtime-movie').addEventListener('change', loadEditShowtimes);
+document.getElementById('edit-showtime-select').addEventListener('change', () => {
+    const form = document.getElementById('edit-showtime-form');
+    const show = adminShowtimes.find(item => String(item.ID) === document.getElementById('edit-showtime-select').value);
+    form.reset();
+    form.querySelector('fieldset').disabled = !show;
+    form.querySelector('.form-status').textContent = '';
+    if (show) {
+        form.elements.namedItem('datetime').value = show.Datetime.replace(' ', 'T');
+        form.elements.namedItem('location').value = show.Location;
+        form.elements.namedItem('seats').value = show.Seats;
+    }
+});
+
+bindAdminForm('password-form', async (data, form) => {
+    const id = Number(data.get('userId'));
+    if (!adminUsers.some(user => Number(user.ID) === id)) throw new Error('Select a user.');
+    const password = data.get('password');
+    if (!password.trim()) throw new Error('Enter a new password.');
+    if (password !== data.get('confirm')) throw new Error('Passwords do not match.');
+    await adminRequest(`${ADMIN_PATH}/users/${id}`, { method: 'PUT', body: { password } });
+    form.reset();
+    return 'Password changed. The user can sign in with the new password.';
+});
+
+bindAdminForm('edit-movie-form', async data => {
+    const id = document.getElementById('edit-movie-select').value;
+    if (!adminMovies.some(movie => String(movie.ID) === id)) throw new Error('Select a movie.');
+    const body = Object.fromEntries(data);
+    if (Object.values(body).some(value => !value.trim())) throw new Error('Fill in every movie field.');
+    const url = new URL(body['img-url'], window.location.href);
+    if (!['http:', 'https:'].includes(url.protocol)) throw new Error('Use an HTTP(S) image URL or a local image path.');
+    await adminRequest(`${MOVIES_PATH}/${id}`, { method: 'PUT', body });
+    try { await loadAdminMovies(); } catch { return 'Movie saved. Reload to refresh the movie selectors.'; }
+    return 'Movie saved. Refresh the movie page to see the updated poster and details.';
+});
+
+bindAdminForm('edit-showtime-form', async data => {
+    const id = document.getElementById('edit-showtime-select').value;
+    const show = adminShowtimes.find(item => String(item.ID) === id);
+    if (!show) throw new Error('Select a showtime.');
+    const seats = Number(data.get('seats'));
+    const location = data.get('location').trim();
+    const datetime = data.get('datetime');
+    if (!Number.isInteger(seats) || seats < 1) throw new Error('Enter a positive whole number of seats.');
+    if (!location) throw new Error('Enter a location.');
+    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(datetime)) throw new Error('Enter a valid date and time.');
+    if (seats < Number(show.Seats)) {
+        const result = await adminRequest(`${ADMIN_PATH}/tickets?showtimeId=${id}`);
+        if (!Array.isArray(result.tickets)) throw new Error('Unable to check booked seats.');
+        for (const ticket of result.tickets) {
+            const match = /^([A-Z])(\d+)$/.exec(ticket.SeatNumber);
+            const position = match ? (match[1].charCodeAt(0) - 65) * 6 + Number(match[2]) : Infinity;
+            if (position > seats) throw new Error('That capacity would remove a booked seat. Keep the existing capacity or choose a larger value.');
+        }
+    }
+    await adminRequest(`${ADMIN_PATH}/showtimes/${id}`, {
+        method: 'PUT', body: { seats, location, datetime: datetime.replace('T', ' ') + (datetime.length === 16 ? ':00' : '') },
+    });
+    show.Seats = seats;
+    show.Location = location;
+    show.Datetime = datetime.replace('T', ' ') + (datetime.length === 16 ? ':00' : '');
+    const select = document.getElementById('edit-showtime-select');
+    select.selectedOptions[0].textContent = `${show.Datetime} — ${show.Location} (ID ${show.ID})`;
+    return 'Showtime saved.';
+});
+document.getElementById('delete-showtime').addEventListener('click', async () => {
+    const select = document.getElementById('edit-showtime-select');
+    const show = adminShowtimes.find(item => String(item.ID) === select.value);
+    if (!show) return;
+    const movie = adminMovies.find(item => Number(item.ID) === Number(show.MovieID));
+    const message = `Delete ${movie ? movie.Title : 'this showtime'} on ${show.Datetime} at ${show.Location}? All tickets for this showing will be permanently canceled. This cannot be undone.`;
+    if (!window.confirm(message)) return;
+    const form = document.getElementById('edit-showtime-form');
+    const fieldset = form.querySelector('fieldset');
+    const status = form.querySelector('.form-status');
+    const movieSelect = document.getElementById('edit-showtime-movie');
+    fieldset.disabled = true;
+    select.disabled = true;
+    movieSelect.disabled = true;
+    status.textContent = 'Deleting showtime...';
+    try {
+        await adminRequest(`${ADMIN_PATH}/showtimes/${show.ID}`, { method: 'DELETE' });
+        document.getElementById('admin-tickets').replaceChildren();
+        document.querySelector('#ticket-form .form-status').textContent = 'Search again to refresh ticket results.';
+        await loadEditShowtimes();
+        status.textContent = 'Showtime deleted and its tickets canceled. Refresh My Tickets to see the change.';
+    } catch (error) {
+        status.textContent = error.message;
+        fieldset.disabled = false;
+        select.disabled = false;
+    } finally {
+        movieSelect.disabled = false;
+    }
+});
+
 initializeAdmin();
