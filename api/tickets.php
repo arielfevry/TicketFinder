@@ -60,7 +60,7 @@ switch($method){
 
 	    $stmt->execute([
 			':userId' => $GLOBALS['USER_ID'],
-			':showing' => $searchTicket]);
+			':showing' => '%' . $searchTicket . '%']);
 	}
 	else { //display all users tickets
 	    $stmt = $db->prepare("SELECT `ID`, `ShowTimeID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `Age`
