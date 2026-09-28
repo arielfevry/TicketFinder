@@ -17,3 +17,7 @@ td button { white-space: nowrap; }
 #admin-tickets { margin-top: 20px; }
 #admin-status { overflow-wrap: anywhere; }
 select:focus-visible { outline: 3px solid #d18b00; outline-offset: 3px; }
+.admin-panel fieldset { display: grid; gap: 10px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.admin-panel > select { margin: 8px 0 16px; }
+#poster-preview { width: 160px; max-width: 100%; height: 200px; object-fit: contain; background: #f4f4f4; }
+#password-form { max-width: 540px; }
