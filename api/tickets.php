@@ -47,6 +47,7 @@ switch($method){
 
 	    //otherise respon
 	    respond(200, $ticket);
+		exit;
 	}
 
 	//allows users to search through their tickets by name
@@ -55,11 +56,11 @@ switch($method){
 		
 	    $stmt = $db->prepare("SELECT `ID`, `ShowTimeID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `Age`
 				FROM Ticket
-				WHERE CustomerID = :userId AND MovieName = :showing");
+				WHERE CustomerID = :userId AND MovieName LIKE :showing");
 
 	    $stmt->execute([
 			':userId' => $GLOBALS['USER_ID'],
-			':showing' => $searchTicket]);
+			':showing' => '%' . $searchTicket . '%']);
 	}
 	else { //display all users tickets
 	    $stmt = $db->prepare("SELECT `ID`, `ShowTimeID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `Age`
@@ -74,6 +75,44 @@ switch($method){
 	exit;
 
 	break;
+
+	case 'PUT':
+		if(!$ticketId){
+			respond(404, ["error" => "Ticket ID Required"]);
+			exit;
+		}
+
+		//get request change
+		$body = getRequestBody();
+		$seat = clean($body['SeatNumber'] ?? '');
+
+		//validate
+		if($seat == ''){
+			respond(400, ["error" => "SeatNumber are required."]);
+			exit;
+		}
+
+		//execute
+		$db = getDB();
+		$stmt = $db->prepare("UPDATE Ticket SET `SeatNumber` = :seat WHERE `ID` = :id AND `CustomerID` = :userId");
+
+		try{
+			$success = $stmt->execute([':seat' => $seat, ':id' => $ticketId, ':userId' => $GLOBALS['USER_ID']]);
+
+			respond(201, ["message" => "Ticket successfully booked!"]);
+			exit;
+		}
+		catch(PDOException $e){
+			if($e->getCode() == 23000){ //integrity constraint
+				respond(409, ["error" => "Seat already taken"]);
+				exit;	
+			}
+
+			respond(500, ["message" => "Booking failed."]);
+			exit;
+		}
+
+		break;
 
     case 'POST':
 	
@@ -143,6 +182,7 @@ switch($method){
 		}
 
 		respond(500, ["message" => "Booking failed."]);
+		exit;
 	}
 	break;
 
