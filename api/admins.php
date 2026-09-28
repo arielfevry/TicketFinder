@@ -14,6 +14,7 @@ Admin Ticket Management:
 GET             /admins/tickets                         : return tickets for showings or users
 GET             /admins/tickets?showtimeId={id}         : return tickets for  a given showing
 GET             /admins/tickets?userId=12               : return tickets for a given user
+GET 		/admins/tickets?showing={string}	: return all tickets for a given movie name
 GET             /admins/tickets/{id}                    : get a specific ticket
 DELETE          /admins/tickets/{id}                    : cancel a specific ticket
 
@@ -231,6 +232,27 @@ switch($sub)
                                                 respond(200, ['success' => true, 'tickets' => $tickets]);
 
 					}
+					elseif(isset($_GET['showing'])){
+						$movieName = $_GET['showing'] ?? null;
+
+						if($movieName === null){
+							respond(400, ['error' => 'enter movie name']);
+						}
+						$stmt = $db->prepare("SELECT `ID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `CustomerID`, `Age`, `DateCreated`, `DateUpdated`
+							FROM Ticket
+							WHERE `MovieName` LIKE ?");
+						$stmt->execute(['%' . $movieName . '%']);
+						
+						$tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+						
+						if(!$tickets){
+							respond(404, ['error' => 'tickets could not be found']);
+						}
+
+
+						respond(200, ['success' => true, 'tickets' => $tickets]);
+
+					}
 					else
 					{
 						respond(400, ['error' => 'user id or showtime id is required']);
@@ -238,7 +260,6 @@ switch($sub)
 				}
 				else{
 					//GET + id -> return a specific ticket
-					//Do we need to user UserID as well?
 					$stmt = $db->prepare("SELECT `ID`, `ShowTimeID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `Age`
 			    			FROM Ticket
 						WHERE ID = ?
