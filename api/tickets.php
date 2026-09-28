@@ -75,6 +75,42 @@ switch($method){
 
 	break;
 
+	case 'PUT':
+		if(!$ticketId){
+			respond(404, ["error" => "Ticket ID Required"])
+		}
+
+		//get request change
+		$body = getRequestBody();
+		$seat = clean($body['SeatNumber'] ?? '');
+
+		//validate
+		if($seat == ''){
+			respond(400, ["error" => "SeatNumber are required."]);
+			exit;
+		}
+
+		//execute
+		$db = getDB();
+		$stmt = $db->prepare("UPDATE Ticket SET `SeatNumber` = :seat WHERE ID = :id");
+
+		try{
+			$success = $stmt->execute([':seat' => $seat]);
+
+			respond(201, ["message" => "Ticket successfully booked!"]);
+			exit;
+		}
+		catch(PDOException $e){
+			if($e->getCode() == 23000){ //integrity constraint
+				respond(409, ["error" => "Seat already taken"]);
+				exit;	
+			}
+
+			respond(500, ["message" => "Booking failed."]);
+		}
+
+		break;
+
     case 'POST':
 	
 	//format api request
