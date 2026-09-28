@@ -72,6 +72,8 @@
                             <img id="poster-preview" alt="Movie poster preview" hidden>
                             <p id="poster-status" role="status"></p>
                             <button type="submit">Save Movie</button>
+                            <button type="button" id="delete-movie">Delete Movie</button>
+                            <p>Deleting this movie permanently removes its showtimes and all associated tickets.</p>
                         </fieldset>
                         <p class="form-status" role="status" aria-live="polite"></p>
                     </form>
@@ -95,7 +97,7 @@
                         </fieldset>
                         <p class="form-status" role="status" aria-live="polite"></p>
                     </form>
-                    <p>Deleting a showtime also permanently cancels all tickets booked for it. Currently, editing a showtime does not update existing tickets.</p>
+                    <p>Showtimes with purchased tickets cannot be edited here. Deleting a showtime permanently cancels all tickets booked for it.</p>
                 </section>
             </div>
             <section class="admin-panel">
@@ -137,6 +139,6 @@
     </main>
     <div id="toasts" role="status" aria-live="polite"></div>
     <script src="shared/shared.js"></script>
-    <script src="js/admin.js?v=3"></script>
+    <script src="js/admin.js?v=5"></script>
 </body>
 </html>
