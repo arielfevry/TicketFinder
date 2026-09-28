@@ -48,7 +48,7 @@ function bindAdminForm(id, action) {
             status.textContent = error.message;
             document.getElementById('admin-status').textContent = error.message;
         } finally {
-            button.disabled = false;
+            button.disabled = form.dataset.editLocked === 'true';
         }
     });
 }
@@ -254,16 +254,40 @@ async function loadEditShowtimes() {
 document.getElementById('edit-movie-select').addEventListener('change', selectEditMovie);
 document.getElementById('edit-image').addEventListener('input', previewPoster);
 document.getElementById('edit-showtime-movie').addEventListener('change', loadEditShowtimes);
-document.getElementById('edit-showtime-select').addEventListener('change', () => {
+function lockShowtimeEditing(locked) {
+    const form = document.getElementById('edit-showtime-form');
+    form.dataset.editLocked = String(locked);
+    for (const input of form.querySelectorAll('input, button[type="submit"]')) input.disabled = locked;
+}
+
+async function showtimeHasTickets(id) {
+    const result = await adminRequest(`${ADMIN_PATH}/tickets?showtimeId=${encodeURIComponent(id)}`);
+    if (!Array.isArray(result.tickets)) throw new Error('Unable to check booked tickets. Editing is disabled.');
+    return result.tickets.length > 0;
+}
+
+document.getElementById('edit-showtime-select').addEventListener('change', async () => {
+    const version = ++showtimeLoadVersion;
     const form = document.getElementById('edit-showtime-form');
     const show = adminShowtimes.find(item => String(item.ID) === document.getElementById('edit-showtime-select').value);
     form.reset();
     form.querySelector('fieldset').disabled = !show;
     form.querySelector('.form-status').textContent = '';
+    lockShowtimeEditing(true);
     if (show) {
         form.elements.namedItem('datetime').value = show.Datetime.replace(' ', 'T');
         form.elements.namedItem('location').value = show.Location;
         form.elements.namedItem('seats').value = show.Seats;
+        const status = form.querySelector('.form-status');
+        status.textContent = 'Checking booked tickets...';
+        try {
+            const booked = await showtimeHasTickets(show.ID);
+            if (version !== showtimeLoadVersion) return;
+            lockShowtimeEditing(booked);
+            status.textContent = booked ? 'This showtime has purchased tickets and cannot be edited.' : '';
+        } catch (error) {
+            if (version === showtimeLoadVersion) status.textContent = error.message;
+        }
     }
 });
 
@@ -300,18 +324,18 @@ bindAdminForm('edit-showtime-form', async data => {
     if (!Number.isInteger(seats) || seats < 1) throw new Error('Enter a positive whole number of seats.');
     if (!location) throw new Error('Enter a location.');
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(datetime)) throw new Error('Enter a valid date and time.');
-    if (seats < Number(show.Seats)) {
-        const result = await adminRequest(`${ADMIN_PATH}/tickets?showtimeId=${id}`);
-        if (!Array.isArray(result.tickets)) throw new Error('Unable to check booked seats.');
-        for (const ticket of result.tickets) {
-            const match = /^([A-Z])(\d+)$/.exec(ticket.SeatNumber);
-            const position = match ? (match[1].charCodeAt(0) - 65) * 6 + Number(match[2]) : Infinity;
-            if (position > seats) throw new Error('That capacity would remove a booked seat. Keep the existing capacity or choose a larger value.');
-        }
+    lockShowtimeEditing(true);
+    if (await showtimeHasTickets(id)) {
+        throw new Error('This showtime has purchased tickets and cannot be edited.');
+    }
+    if (document.getElementById('edit-showtime-select').value !== id) {
+        throw new Error('The selected showtime changed. Please select it again before saving.');
     }
     await adminRequest(`${ADMIN_PATH}/showtimes/${id}`, {
         method: 'PUT', body: { seats, location, datetime: datetime.replace('T', ' ') + (datetime.length === 16 ? ':00' : '') },
     });
+    if (document.getElementById('edit-showtime-select').value !== id) return 'Showtime saved.';
+    lockShowtimeEditing(false);
     show.Seats = seats;
     show.Location = location;
     show.Datetime = datetime.replace('T', ' ') + (datetime.length === 16 ? ':00' : '');
@@ -346,6 +370,57 @@ document.getElementById('delete-showtime').addEventListener('click', async () =>
         select.disabled = false;
     } finally {
         movieSelect.disabled = false;
+    }
+});
+
+document.getElementById('delete-movie').addEventListener('click', async () => {
+    const select = document.getElementById('edit-movie-select');
+    const movie = adminMovies.find(item => String(item.ID) === select.value);
+    if (!movie) return;
+    if (!window.confirm(`Delete ${movie.Title}? All of its showtimes and associated tickets will also be permanently deleted. This cannot be undone.`)) return;
+    const form = document.getElementById('edit-movie-form');
+    const fieldset = form.querySelector('fieldset');
+    const status = form.querySelector('.form-status');
+    fieldset.disabled = true;
+    select.disabled = true;
+    status.textContent = 'Deleting movie...';
+    try {
+        await adminRequest(`${MOVIES_PATH}/${movie.ID}`, { method: 'DELETE' });
+    } catch (error) {
+        status.textContent = error.message;
+        fieldset.disabled = false;
+        select.disabled = false;
+        return;
+    }
+
+    // Discard stale selections after the server confirms deletion.
+    ++showtimeLoadVersion;
+    adminShowtimes = [];
+    document.getElementById('edit-showtime-movie').value = '';
+    const showSelect = document.getElementById('edit-showtime-select');
+    showSelect.replaceChildren(el('option', { value: '' }, 'Select a movie first'));
+    showSelect.disabled = true;
+    const showForm = document.getElementById('edit-showtime-form');
+    showForm.reset();
+    showForm.querySelector('fieldset').disabled = true;
+    showForm.querySelector('.form-status').textContent = '';
+    document.getElementById('admin-tickets').replaceChildren();
+    document.querySelector('#ticket-form .form-status').textContent = 'Search again to refresh ticket results.';
+    adminMovies = adminMovies.filter(item => Number(item.ID) !== Number(movie.ID));
+    for (const id of ['showtime-movie', 'edit-movie-select', 'edit-showtime-movie']) {
+        const picker = document.getElementById(id);
+        for (const option of Array.from(picker.options)) {
+            if (option.value === String(movie.ID)) option.remove();
+        }
+    }
+    select.value = '';
+    selectEditMovie();
+    select.disabled = false;
+    try {
+        await loadAdminMovies();
+        status.textContent = 'Movie, showtimes, and associated tickets deleted.';
+    } catch {
+        status.textContent = 'Movie deleted. Reload the page to refresh the movie list.';
     }
 });
 
