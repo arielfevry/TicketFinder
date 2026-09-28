@@ -55,7 +55,7 @@ switch($method){
 		
 	    $stmt = $db->prepare("SELECT `ID`, `ShowTimeID`, `MovieName`, `ShowTime`, `LocationAddress`, `SeatNumber`, `Age`
 				FROM Ticket
-				WHERE CustomerID = :userId AND MovieName = :showing");
+				WHERE CustomerID = :userId AND MovieName LIKE :showing");
 
 	    $stmt->execute([
 			':userId' => $GLOBALS['USER_ID'],
