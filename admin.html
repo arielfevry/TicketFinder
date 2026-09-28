@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin | TicketFinder</title>
     <link rel="stylesheet" href="css/movies.css?v=20260925-3">
-    <link rel="stylesheet" href="css/admin.css?v=1">
+    <link rel="stylesheet" href="css/admin.css?v=2">
 </head>
 <body>
     <header>
@@ -54,6 +54,63 @@
                     </form>
                 </section>
             </div>
+            <div class="admin-grid">
+                <section class="admin-panel">
+                    <h2>Edit a movie</h2>
+                    <label for="edit-movie-select">Movie</label>
+                    <select id="edit-movie-select"><option value="">Select a movie</option></select>
+                    <form id="edit-movie-form">
+                        <fieldset disabled>
+                            <label for="edit-title">Title</label>
+                            <input id="edit-title" name="title" required>
+                            <label for="edit-genre">Genre</label>
+                            <input id="edit-genre" name="genre" required>
+                            <label for="edit-release">Release date</label>
+                            <input id="edit-release" name="release-date" type="date" required>
+                            <label for="edit-image">Image URL or local image path</label>
+                            <input id="edit-image" name="img-url" required aria-describedby="poster-status">
+                            <img id="poster-preview" alt="Movie poster preview" hidden>
+                            <p id="poster-status" role="status"></p>
+                            <button type="submit">Save Movie</button>
+                        </fieldset>
+                        <p class="form-status" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+                <section class="admin-panel">
+                    <h2>Edit a showtime</h2>
+                    <label for="edit-showtime-movie">Movie</label>
+                    <select id="edit-showtime-movie"><option value="">Select a movie</option></select>
+                    <label for="edit-showtime-select">Showtime</label>
+                    <select id="edit-showtime-select" disabled><option value="">Select a movie first</option></select>
+                    <form id="edit-showtime-form">
+                        <fieldset disabled>
+                            <label for="edit-showtime-date">Date and time (theater local time)</label>
+                            <input id="edit-showtime-date" name="datetime" type="datetime-local" step="1" required>
+                            <label for="edit-showtime-location">Theater / location</label>
+                            <input id="edit-showtime-location" name="location" required>
+                            <label for="edit-showtime-seats">Number of seats</label>
+                            <input id="edit-showtime-seats" name="seats" type="number" min="1" step="1" required>
+                            <button type="submit">Save Showtime</button>
+                            <button type="button" id="delete-showtime">Delete Showtime</button>
+                        </fieldset>
+                        <p class="form-status" role="status" aria-live="polite"></p>
+                    </form>
+                    <p>Deleting a showtime also permanently cancels all tickets booked for it. Currently, editing a showtime does not update existing tickets.</p>
+                </section>
+            </div>
+            <section class="admin-panel">
+                <h2>Change a user's password</h2>
+                <form id="password-form">
+                    <label for="password-user">User</label>
+                    <select id="password-user" name="userId" required></select>
+                    <label for="new-password">New password</label>
+                    <input id="new-password" name="password" type="password" autocomplete="new-password" required>
+                    <label for="confirm-password">Confirm new password</label>
+                    <input id="confirm-password" name="confirm" type="password" autocomplete="new-password" required>
+                    <button type="submit">Change Password</button>
+                    <p class="form-status" role="status" aria-live="polite"></p>
+                </form>
+            </section>
             <section class="admin-panel" aria-labelledby="users-heading">
                 <h2 id="users-heading">Users</h2>
                 <label for="user-search">Search by name or email</label>
@@ -80,6 +137,6 @@
     </main>
     <div id="toasts" role="status" aria-live="polite"></div>
     <script src="shared/shared.js"></script>
-    <script src="js/admin.js?v=1"></script>
+    <script src="js/admin.js?v=3"></script>
 </body>
 </html>
