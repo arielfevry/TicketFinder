@@ -44,9 +44,26 @@ label[for="ticketSearch"] { display: block; margin-bottom: 8px; font-weight: bol
 #ticketList > article > div:first-child { padding: 20px; min-width: 0; overflow-wrap: anywhere; }
 #ticketList h3 { margin: 0 0 10px; }
 #ticketList p { margin: 6px 0; }
-#ticketList .ticket-delete { margin-top: 12px; padding: 6px 14px; border-color: #b91c1c; color: #b91c1c; background: white; }
-#ticketList .ticket-delete:hover:not(:disabled) { color: white; background: #b91c1c; }
-#ticketList .ticket-delete:disabled { border-color: #e5e7eb; color: #4b5563; background: #e5e7eb; }
+#ticketList > article > div:first-child { flex: 1; }
+#ticketList .ticket-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+#ticketList .ticket-action { padding: 6px 14px; border-color: #b91c1c; color: #b91c1c; background: white; }
+#ticketList .ticket-action:hover:not(:disabled) { color: white; background: #b91c1c; }
+#ticketList .ticket-action:disabled { border-color: #e5e7eb; color: #4b5563; background: #e5e7eb; }
+/* Change Seat picker */
+#ticketList .seat-picker { margin-top: 16px; padding-top: 16px; border-top: 1px dashed #d6b5b5; }
+#ticketList .seat-picker h4 { margin: 0 0 8px; }
+#ticketList .seat-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 14px; color: #57534e; }
+#ticketList .seat-key { display: inline-block; width: 16px; height: 16px; margin-right: -8px; border: 1px solid #8793a5; border-radius: 3px; background: white; vertical-align: middle; }
+#ticketList .seat-key-current { border: 2px solid #b91c1c; background: #fef2f2; }
+#ticketList .seat-key-taken { border-color: #e5e7eb; background: #e5e7eb; }
+#ticketList .seat-screen { max-width: 380px; margin: 14px 0 10px; padding: 2px 0; border-radius: 4px; font-size: 12px; letter-spacing: 3px; text-align: center; text-transform: uppercase; color: #57534e; background: #edf0f4; }
+#ticketList .seat-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; max-width: 380px; }
+#ticketList .seat { padding: 8px 0; border-color: #8793a5; color: #292524; background: white; }
+#ticketList .seat:hover:not(:disabled) { border-color: #b91c1c; color: #b91c1c; background: #fef2f2; }
+#ticketList .seat[aria-pressed="true"], #ticketList .seat[aria-pressed="true"]:hover:not(:disabled) { border-color: #b91c1c; color: white; background: #b91c1c; }
+#ticketList .seat-current:disabled { border: 2px solid #b91c1c; color: #991b1b; background: #fef2f2; font-weight: bold; cursor: default; }
+#ticketList .seat-taken:disabled { border-color: #e5e7eb; color: #9ca3af; background: #e5e7eb; text-decoration: line-through; }
+#ticketList .seat-status { margin: 12px 0 10px; }
 #ticketList > article > div:last-child { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 90px; padding: 16px; border-left: 1px dashed #d6b5b5; color: #991b1b; background: #fef2f2; }
 #ticketList > article > div:last-child p:last-child { font-size: 28px; font-weight: bold; }
 #ticketList > p { padding: 20px; border: 1px solid #e5d5d5; border-radius: 8px; background: white; }
