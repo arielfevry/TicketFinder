@@ -1,13 +1,15 @@
-// Sends a request to the tickets API and returns the parsed JSON.
-// tickets.php prints its route comment before the JSON, so the comment is
-// stripped before parsing (the api() helper can't read these responses).
-async function ticketRequest(url, method = 'GET') {
+// Sends a request to the tickets or showtimes API and returns the parsed JSON.
+// Those PHP files print their route comment before the JSON, so the comment is
+// stripped before parsing (the shared api() helper can't read these responses).
+async function ticketRequest(url, method = 'GET', body) {
     const response = await fetch(url, {
         method,
         headers: {
+            'Content-Type': 'application/json',
             Authorization: 'Bearer ' + state.user.id,
             'X-User-Id': state.user.id,
         },
+        body: body ? JSON.stringify(body) : undefined,
     });
 
     if (response.status === 401) {
@@ -16,7 +18,7 @@ async function ticketRequest(url, method = 'GET') {
     }
 
     const text = await response.text();
-    const cleaned = text.replace(/^\s*\/\*[\s\S]*?\*\/\s*/, ''); // Cleans php response
+    const cleaned = text.replace(/^\s*\/\*[\s\S]*?\*\/\s*/, '');
     let data;
     try {
         data = JSON.parse(cleaned);
@@ -25,7 +27,8 @@ async function ticketRequest(url, method = 'GET') {
     }
 
     if (!response.ok) {
-        throw new Error(data.error || 'The ticket request failed.');
+        throw Object.assign(new Error(data.error || 'The ticket request failed.'),
+            { status: response.status });
     }
     return data;
 }
@@ -45,27 +48,24 @@ async function deleteTicket(ticketId) {
 }
 
 // Gets the seat map for a showing: GET /TicketFinder/showtimes/{id}/seats
-// Returns entire seat array
-async function fetchSeats(showTimeId)
-{
+// Returns [{ seatNumber: 'A1', is_availible: true }, ...]
+async function fetchSeats(showTimeId) {
     const data = await ticketRequest(SHOWTIMES_PATH + '/' + encodeURIComponent(showTimeId) + '/seats');
-
-    if (!Array.isArray(data.seats))
-    {
+    if (!Array.isArray(data.seats)) {
         throw new Error('The server did not return a seat list.');
     }
-
     return data.seats;
 }
 
 // Moves a ticket to a new seat: PUT /TicketFinder/tickets/{id}
-async function changeSeat(ticketId, seatNumber)
-{
-    return ticketRequest(TICKETS_PATH + '/' + encodeURIComponent(ticketId), 'PUT', { SeatNumber: seatNumber });
+// Updating the ticket's SeatNumber frees the old seat, since seat availability
+// comes from the seats stored on tickets.
+async function changeSeat(ticketId, seatNumber) {
+    return ticketRequest(TICKETS_PATH + '/' + encodeURIComponent(ticketId), 'PUT',
+        { SeatNumber: seatNumber });
 }
 
-
-// Current search text, so the list can be reloaded after a delete
+// Current search text, so the list can be reloaded after a change
 function currentSearch() {
     return document.getElementById('ticketSearch').value.trim();
 }
@@ -81,7 +81,7 @@ document.getElementById('ticketSearch').addEventListener('input', debounce(e =>
 function makeDeleteButton(ticket) {
     const btn = el('button', {
         type: 'button',
-        class: 'ticket-delete',
+        class: 'ticket-action ticket-delete',
         'aria-label': `Delete ticket for ${ticket.MovieName}, seat ${ticket.SeatNumber}`,
     }, 'Delete');
 
@@ -109,18 +109,15 @@ function makeDeleteButton(ticket) {
     return btn;
 }
 
-// Builds the Change Seat button
-// Opens a seat picker from inside the ticket card when clicked
-function makeChangeSeatButton(ticket)
-{
+// Builds the Change Seat button; it opens a seat picker inside the ticket card
+function makeChangeSeatButton(ticket) {
     const label = `Change seat for ${ticket.MovieName}, currently seat ${ticket.SeatNumber}`;
-
     const btn = el('button', {
         type: 'button',
         class: 'ticket-action',
-        'aria-expanded': false,
+        'aria-expanded': 'false',
         'aria-label': label,
-        'aria-label': label,
+        'data-label': label,
     }, 'Change Seat');
 
     btn.addEventListener('click', () => {
@@ -128,8 +125,7 @@ function makeChangeSeatButton(ticket)
         const openPicker = details.querySelector('.seat-picker');
 
         closeSeatPickers();
-        if (!openPicker)
-        {
+        if (!openPicker) {
             openSeatPicker(ticket, details, btn);
         }
     });
@@ -137,21 +133,19 @@ function makeChangeSeatButton(ticket)
     return btn;
 }
 
-// Closes every seat picker open (only one is open at a time)
-function closeSeatPickers()
-{
+// Closes every open seat picker (only one is open at a time)
+function closeSeatPickers() {
     document.querySelectorAll('#ticketList .seat-picker').forEach(p => p.remove());
     document.querySelectorAll('#ticketList [aria-expanded="true"]').forEach(b => {
-        b.setAttribute('aria-expanded', false);
+        b.setAttribute('aria-expanded', 'false');
         b.setAttribute('aria-label', b.dataset.label);
         b.textContent = 'Change Seat';
     });
 }
 
-// Opens the seat map for a users showing so they can change their seat
-async function openSeatPicker(ticker, container, toggleBtn)
-{
-    const picker = el('div', { class: 'seat-picker' }, el('p', { }, 'Loading Seats...'));
+// Shows the seat map for the ticket's showing so the user can pick a new seat
+async function openSeatPicker(ticket, container, toggleBtn) {
+    const picker = el('div', { class: 'seat-picker' }, el('p', { }, 'Loading seats...'));
     container.append(picker);
     toggleBtn.setAttribute('aria-expanded', 'true');
     toggleBtn.setAttribute('aria-label', `Cancel seat change for ${ticket.MovieName}`);
@@ -159,7 +153,7 @@ async function openSeatPicker(ticker, container, toggleBtn)
 
     let seats;
     try {
-        seats = await fetchSeats(ticket.ShowTimeId);
+        seats = await fetchSeats(ticket.ShowTimeID);
     } catch (ex) {
         picker.replaceChildren(el('p', { }, ex.message));
         return;
@@ -167,31 +161,33 @@ async function openSeatPicker(ticker, container, toggleBtn)
 
     let selectedSeat = null;
 
-    const status = el('p', { class: 'seat-status', 'aria-live': 'polite'}, `Your current seat is ${ticket.SeatNumber}. Pick an open seat.`);
+    const status = el('p', { class: 'seat-status', 'aria-live': 'polite' },
+        `Your current seat is ${ticket.SeatNumber}. Pick an open seat.`);
 
     const confirmBtn = el('button', { type: 'button', disabled: 'disabled' }, 'Confirm Seat Change');
 
-    const grid = el('div', { class: 'seat-grid', role: 'group', 'aria-label': 'Seats' }, 
+    const grid = el('div', { class: 'seat-grid', role: 'group', 'aria-label': 'Seats' },
         ...seats.map(seat => {
             const isCurrent = seat.seatNumber === ticket.SeatNumber;
-            const isTaken = !isCurrent && seat.is_available === false;
+            const isTaken = !isCurrent && seat.is_availible === false;
 
             const seatBtn = el('button', {
                 type: 'button',
                 class: 'seat' + (isCurrent ? ' seat-current' : '') + (isTaken ? ' seat-taken' : ''),
                 'aria-pressed': 'false',
-                'aria-label': seat.seatNumber + (isCurrent ? ' (your current seat)' : isTaken ? ' (taken)' : ''),
+                'aria-label': seat.seatNumber
+                    + (isCurrent ? ' (your current seat)' : isTaken ? ' (taken)' : ''),
             }, seat.seatNumber);
 
-            if (isCurrent || isTaken)
-            {
+            if (isCurrent || isTaken) {
                 seatBtn.disabled = true;
                 return seatBtn;
             }
 
             seatBtn.addEventListener('click', () => {
-                grid.querySelectorAll('.seat[aria-pressed="true"]').forEach(b => b.setAttribute('aria-pressed', false));
-                seatBtn.setAttribute('aria-pressed', true);
+                grid.querySelectorAll('.seat[aria-pressed="true"]')
+                    .forEach(b => b.setAttribute('aria-pressed', 'false'));
+                seatBtn.setAttribute('aria-pressed', 'true');
                 selectedSeat = seat.seatNumber;
                 status.textContent = `Move from ${ticket.SeatNumber} to ${selectedSeat}?`;
                 confirmBtn.disabled = false;
@@ -201,8 +197,8 @@ async function openSeatPicker(ticker, container, toggleBtn)
         })
     );
 
-    confirmBtn.addEventListener('click', () => {
-        if (!seatSelected) return;
+    confirmBtn.addEventListener('click', async () => {
+        if (!selectedSeat) return;
 
         confirmBtn.disabled = true;
         confirmBtn.textContent = 'Changing seat...';
@@ -211,12 +207,11 @@ async function openSeatPicker(ticker, container, toggleBtn)
             await changeSeat(ticket.ID ?? ticket.id, selectedSeat);
         } catch (ex) {
             confirmBtn.textContent = 'Confirm Seat Change';
-            if (ex.status === 409)
-            {
-                // Someone booked it first, reload seat map
+            if (ex.status === 409) {
+                // Someone else booked it first: reload the seat map
                 toast(`Seat ${selectedSeat} was just taken. Please pick another seat.`, true);
                 closeSeatPickers();
-                openSeatPicker(ticker, container, toggleBtn);
+                openSeatPicker(ticket, container, toggleBtn);
             } else {
                 confirmBtn.disabled = false;
                 toast(ex.message, true);
@@ -230,11 +225,10 @@ async function openSeatPicker(ticker, container, toggleBtn)
 
     const legend = el('p', { class: 'seat-legend' },
         el('span', { class: 'seat-key' }), 'Open',
-        el('span', { class: 'seat-key seat-key-current'}), 'Your seat',
+        el('span', { class: 'seat-key seat-key-current' }), 'Your seat',
         el('span', { class: 'seat-key seat-key-taken' }), 'Taken'
     );
 
-    // Display seat map
     picker.replaceChildren(
         el('h4', { }, 'Choose a new seat'),
         legend,
@@ -272,7 +266,10 @@ async function loadTickets(q) {
             el('h3', { }, t.MovieName),
             el('p', { }, `${t.ShowTime} at ${t.LocationAddress}`),
             el('p', { }, `Seat ${t.SeatNumber}` + (t.Age ? `, age ${t.Age}` : '')),
-            makeDeleteButton(t)
+            el('div', { class: 'ticket-actions' },
+                makeChangeSeatButton(t),
+                makeDeleteButton(t)
+            )
         ),
         el('div', { },
             el('p', { }, 'Admit'),
